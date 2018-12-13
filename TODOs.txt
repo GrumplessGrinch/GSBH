@@ -1,0 +1,37 @@
+- Cheatmode toggle to speed up testing
+- Add resource gain to resource display
+	- Resource tooltips
+- Hunter unlocks woodcutter
+- Add building destruction to reclaim orcs(maybe)
+- Add timed eventlog entries
+- Add storage building(s)
+- Refactor upgrade application/resource production
+- View purchased upgrades
+- Add objectives
+- Move JS to separate file(s)
+- Github
+
+
+Scouting rewards drawn at random from a pool until you get them all (tiered?)
+Scouting outcomes:
+	- Pools of strange, caustic substances
+		- Unlocks tanning upgrade/building
+	- A pit which leads to a vast cave
+		- Unlocks stone gathering
+		- Dwarves later?
+	- Clay deposits
+		- Unlocks clay gathering, brickmaking upgrade/building
+		
+Story paths
+	- Forest
+		- Expand wood production
+		- Enslave dryads for magic unlock
+	- Wargs
+		- Ride for cavalry/raiding options
+		- Drink blood for stronger warriors/combat magic?
+	- Dwarves deep down
+		- Raid for wealth
+		- Subjugate for blacksmiths
+		
+Possible major features
+	- A map with scouted locations?
