@@ -17,7 +17,7 @@
 	
 	<div id="buildingTab" class="tab">
 		<div id="buildings" class="container">
-			<button v-for="building in buildings" v-on:click="addBuilding(building)" 
+			<button v-for="building in buildings" v-on:click="addBuilding(building)" v-if="building.unlocked"
 			:id="building.id" :disabled="isPurchaseDisabled(building)" type="button" class="tooltip">
 				<p class="left buttonText">{{building.name}}</p>
 				<p class="right buttonText">{{building.current}}</p>
@@ -34,7 +34,7 @@
 	
 	<div id="upgradeTab" class="tab">
 		<div id="upgrades" class="container">
-			<button v-for="upgrade in upgrades" v-if="upgrade.purchased == false" v-on:click="buyUpgrade(upgrade)"
+			<button v-for="upgrade in upgrades" v-if="!upgrade.purchased" v-on:click="buyUpgrade(upgrade)"
 			:id="upgrade.id" :disabled="isPurchaseDisabled(upgrade)" type="button" class="tooltip">
 				<p class="buttonText">{{upgrade.name}}</p>
 				<span class="tooltipText">{{upgrade.flavor}}<br /><br />

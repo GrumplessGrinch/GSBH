@@ -19,15 +19,18 @@ var app = new Vue({
 			hunter: {
 				id: "building1", name: "Hunter's Lean-To", 
 				flavor: "Shelter for orcish hunters.",
+				unlocked: true,
 				current: 0,
 				orcPrice: 1,
 				price1: 10, price1Base: 10, price1Growth: 1.1, priceType1: null, //Wood
 				production1: 1, productionType1: null, //Meat
-				production2: 0.1, productionType2: null, productionType2Unlocked: false //Furs
+				production2: 0.1, productionType2: null, productionType2Unlocked: false, //Furs
+				buildingUnlocked: null //Woodcutter
 				},
 			woodcutter: {
 				id: "building2", name: "Scavenger's Lean-To",
 				flavor: "The orcs inside will scavenge pieces of wood.",
+				unlocked: false,
 				current: 0,
 				orcPrice: 1, 
 				price1: 10, price1Base: 10, price1Growth: 1.1, priceType1: null, //Wood
@@ -62,6 +65,7 @@ var app = new Vue({
 		this.buildings.hunter.priceType1 = this.resources.wood;
 		this.buildings.hunter.productionType1 = this.resources.meat;
 		this.buildings.hunter.productionType2 = this.resources.furs;
+		this.buildings.hunter.buildingUnlocked = this.buildings.woodcutter;
 		
 		this.buildings.woodcutter.priceType1 = this.resources.wood;
 		this.buildings.woodcutter.productionType1 = this.resources.wood;
@@ -130,6 +134,10 @@ var app = new Vue({
 			if (building.price2 != undefined)
 				building.priceType2.current -= building.price2;
 			building.current += 1;
+			
+			if (building.buildingUnlocked != undefined)
+				building.buildingUnlocked.unlocked = true;
+			
 			this.updateCost(building);
 			this.updateProduction();
 			this.cleanUpResources();
