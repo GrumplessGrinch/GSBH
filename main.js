@@ -21,9 +21,9 @@ var app = new Vue({
 				flavor: "Shelter for orcish hunters.",
 				current: 0,
 				orcPrice: 1,
-				price1: 10, price1Base: 10, price1Growth: 1.1, priceType1: null,//Wood
+				price1: 10, price1Base: 10, price1Growth: 1.1, priceType1: null, //Wood
 				production1: 1, productionType1: null, //Meat
-				production2: 0.1, productionType2: null, //Furs
+				production2: 0.1, productionType2: null, productionType2Unlocked: false //Furs
 				},
 			woodcutter: {
 				id: "building2", name: "Scavenger's Lean-To",
@@ -35,12 +35,13 @@ var app = new Vue({
 				}
 		},
 		upgrades: {
-			butchering: {
-				id: "upgrade1", name: "Butchering",
+			skinning: {
+				id: "upgrade1", name: "Skinning",
 				flavor: "With wooden tools and some experimentation, your hunters will also gather furs from their kills.",
 				purchased: false,
 				price1: 50, priceType1: null, //Wood
-				resourceDiscovered: null //Furs
+				resourceDiscovered: null, //Furs
+				production2Unlocked: null //Hunter
 			},
 			scouts1: {
 				id: "upgrade2", name: "Scouting Expedition",
@@ -65,8 +66,9 @@ var app = new Vue({
 		this.buildings.woodcutter.priceType1 = this.resources.wood;
 		this.buildings.woodcutter.productionType1 = this.resources.wood;
 		
-		this.upgrades.butchering.priceType1 = this.resources.wood;
-		this.upgrades.butchering.resourceDiscovered = this.resources.furs;
+		this.upgrades.skinning.priceType1 = this.resources.wood;
+		this.upgrades.skinning.resourceDiscovered = this.resources.furs;
+		this.upgrades.skinning.production2Unlocked = this.buildings.hunter;
 	},
 	
 	computed: {
@@ -142,9 +144,10 @@ var app = new Vue({
 				upgrade.priceType2.current -= upgrade.price2;
 			upgrade.purchased = true;
 			
-			if (upgrade.resourceDiscovered != undefined) {
+			if (upgrade.resourceDiscovered != undefined)
 				upgrade.resourceDiscovered.discovered = true;
-			}
+			if (upgrade.production2Unlocked != undefined)
+				upgrade.production2Unlocked.productionType2Unlocked = true;
 			
 			//Hide the button
 			var idString = "#" + upgrade.id;
@@ -169,7 +172,7 @@ var app = new Vue({
 		updateProduction: function () {
 			this.resources.meat.productionRate = this.buildings.hunter.production1 * this.buildings.hunter.current;
 			this.resources.wood.productionRate = this.buildings.woodcutter.production1 * this.buildings.woodcutter.current;
-			if (this.upgrades.butchering.purchased)
+			if (this.buildings.hunter.productionType2Unlocked)
 				this.resources.furs.productionRate = this.buildings.hunter.production2 * this.buildings.hunter.current;
 		},
 		
