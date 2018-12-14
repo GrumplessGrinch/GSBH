@@ -23,8 +23,8 @@ var app = new Vue({
 				current: 0,
 				orcPrice: 1,
 				price1: 10, price1Base: 10, price1Growth: 1.1, priceType1: null, //Wood
-				production1: 1, productionType1: null, //Meat
-				production2: 0.1, productionType2: null, productionType2Unlocked: false, //Furs
+				baseProduction1: 1, increasedProduction1: 1, moreProduction1: 1, productionType1: null, //Meat
+				baseProduction2: 0.1, increasedProduction2: 1, moreProduction2: 1, productionType2: null, productionType2Unlocked: false, //Furs
 				buildingUnlocked: null //Woodcutter
 				},
 			woodcutter: {
@@ -34,22 +34,33 @@ var app = new Vue({
 				current: 0,
 				orcPrice: 1, 
 				price1: 10, price1Base: 10, price1Growth: 1.1, priceType1: null, //Wood
-				production1: 1, productionType1: null //Wood
+				baseProduction1: 1, increasedProduction1: 1, moreProduction1: 1, productionType1: null //Wood
 				}
 		},
 		upgrades: {
 			skinning: {
 				id: "upgrade1", name: "Skinning",
 				flavor: "With wooden tools and some experimentation, your hunters will also gather furs from their kills.",
-				purchased: false,
+				unlocked: true, purchased: false,
 				price1: 50, priceType1: null, //Wood
 				resourceDiscovered: null, //Furs
-				production2Unlocked: null //Hunter
+				production2Unlocked: null, //Hunter
+				upgrade1Unlocked: null, //Fur clothes
+			},
+			furClothes: {
+				id: "upgrade2", name: "Fur Clothes",
+				flavor: "Warmer hunters are more effective.",
+				unlocked: false, purchased: false,
+				price1: 25, priceType1: null, //Furs
+				baseProductionIncreased1: null, //Hunter
+				baseProductionIncreasedAmount1: 0.5,
+				baseProductionIncreased2: null, //Hunter
+				baseProductionIncreasedAmount2: 0.05
 			},
 			scouts1: {
-				id: "upgrade2", name: "Scouting Expedition",
+				id: "upgrade3", name: "Scouting Expedition",
 				flavor: "Send scouts to look for new resources.",
-				purchased: false,
+				unlocked: true, purchased: false,
 				orcPrice: 5
 			}
 		},
@@ -73,6 +84,11 @@ var app = new Vue({
 		this.upgrades.skinning.priceType1 = this.resources.wood;
 		this.upgrades.skinning.resourceDiscovered = this.resources.furs;
 		this.upgrades.skinning.production2Unlocked = this.buildings.hunter;
+		this.upgrades.skinning.upgrade1Unlocked = this.upgrades.furClothes;
+		
+		this.upgrades.furClothes.priceType1 = this.resources.furs;
+		this.upgrades.furClothes.baseProductionIncreased1 = this.buildings.hunter;
+		this.upgrades.furClothes.baseProductionIncreased2 = this.buildings.hunter;
 	},
 	
 	computed: {
@@ -156,6 +172,14 @@ var app = new Vue({
 				upgrade.resourceDiscovered.discovered = true;
 			if (upgrade.production2Unlocked != undefined)
 				upgrade.production2Unlocked.productionType2Unlocked = true;
+			if (upgrade.upgrade1Unlocked != undefined)
+				upgrade.upgrade1Unlocked.unlocked = true;
+			
+			if (upgrade.baseProductionIncreased1 != undefined)
+				upgrade.baseProductionIncreased1.baseProduction1 += upgrade.baseProductionIncreasedAmount1;
+			
+			if (upgrade.baseProductionIncreased2 != undefined)
+				upgrade.baseProductionIncreased2.baseProduction2 += upgrade.baseProductionIncreasedAmount2;
 			
 			//Hide the button
 			var idString = "#" + upgrade.id;
@@ -178,10 +202,21 @@ var app = new Vue({
 		},
 		
 		updateProduction: function () {
-			this.resources.meat.productionRate = this.buildings.hunter.production1 * this.buildings.hunter.current;
-			this.resources.wood.productionRate = this.buildings.woodcutter.production1 * this.buildings.woodcutter.current;
+			var meatProd = 0;
+			meatProd += this.buildings.hunter.baseProduction1 * this.buildings.hunter.current *
+				this.buildings.hunter.increasedProduction1 * this.buildings.hunter.moreProduction1;
+			this.resources.meat.productionRate = meatProd;
+			
+			var woodProd = 0;
+			woodProd += this.buildings.woodcutter.baseProduction1 * this.buildings.woodcutter.current *
+				this.buildings.woodcutter.increasedProduction1 * this.buildings.woodcutter.moreProduction1;
+			this.resources.wood.productionRate = woodProd;
+			
+			var fursProd = 0;
 			if (this.buildings.hunter.productionType2Unlocked)
-				this.resources.furs.productionRate = this.buildings.hunter.production2 * this.buildings.hunter.current;
+				fursProd += this.buildings.hunter.baseProduction2 * this.buildings.hunter.current * 
+					this.buildings.hunter.increasedProduction2 * this.buildings.hunter.moreProduction2;
+			this.resources.furs.productionRate = fursProd;
 		},
 		
 		produceResources: function () {
