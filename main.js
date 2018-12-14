@@ -238,6 +238,13 @@ var app = new Vue({
 			for (let resource in this.resources) {
 				this.resources[resource].current = parseFloat(this.resources[resource].current.toFixed(this.SIG_DIGITS));
 			}
+		},
+		
+		cheatResources: function () {
+			this.orcs.current +=5;
+			this.orcs.total +=5;
+			this.resources.wood.current += 50;
+			this.resources.meat.current += 50;
 		}
 	}
 })
