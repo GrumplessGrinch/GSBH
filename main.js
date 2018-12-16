@@ -22,8 +22,10 @@ var app = new Vue({
 				unlocked: true,
 				current: 0,
 				orcPrice: 1,
-				price1: 10, price1Base: 10, price1Growth: 1.1, priceType1: null, //Wood
 				buildingUnlocked: null, //Woodcutter
+				price: {
+					wood: {price: 10, base: 10, growth: 1.1, type: null}
+				},
 				production: {
 					meat: {base: 1, increased: 1, more: 1, type: null, unlocked: true},
 					furs: {base: 0.1, increased: 1, more: 1, type: null, unlocked: false}
@@ -35,7 +37,9 @@ var app = new Vue({
 				unlocked: false,
 				current: 0,
 				orcPrice: 1, 
-				price1: 10, price1Base: 10, price1Growth: 1.1, priceType1: null, //Wood
+				price: {
+					wood: {price: 10, base: 10, growth: 1.1, type: null}
+				},
 				production: {
 					wood: {base: 1, increased: 1, more: 1, type: null, unlocked: true}
 				}
@@ -46,7 +50,9 @@ var app = new Vue({
 				id: "upgrade1", name: "Skinning",
 				flavor: "With wooden tools and some experimentation, your hunters will also gather furs from their kills.",
 				unlocked: true, purchased: false,
-				price1: 50, priceType1: null, //Wood
+				price: {
+					wood: {price: 50, type: null}
+				},
 				resourceDiscovered: null, //Furs
 				productionUnlocked: null, //Hunter furs
 				upgrade1Unlocked: null, //Fur clothes
@@ -55,7 +61,9 @@ var app = new Vue({
 				id: "upgrade2", name: "Fur Clothes",
 				flavor: "Warmer hunters are more effective.",
 				unlocked: false, purchased: false,
-				price1: 25, priceType1: null, //Furs
+				price: {
+					furs: {price: 25, type: null}
+				},
 				baseProductionIncreased: {
 					hunterMeat: {amount: 0.5, target: null},
 					hunterFurs: {amount: 0.05, target: null}
@@ -77,20 +85,20 @@ var app = new Vue({
 	// This runs after the data object is created
 	// Adds data with dependencies
 	created: function () {
-		this.buildings.hunter.priceType1 = this.resources.wood;
+		this.buildings.hunter.price.wood.type = this.resources.wood;
 		this.buildings.hunter.production.meat.type = this.resources.meat;
 		this.buildings.hunter.production.furs.type = this.resources.furs;
 		this.buildings.hunter.buildingUnlocked = this.buildings.woodcutter;
 		
-		this.buildings.woodcutter.priceType1 = this.resources.wood;
+		this.buildings.woodcutter.price.wood.type = this.resources.wood;
 		this.buildings.woodcutter.production.wood.type = this.resources.wood;
 		
-		this.upgrades.skinning.priceType1 = this.resources.wood;
+		this.upgrades.skinning.price.wood.type = this.resources.wood;
 		this.upgrades.skinning.resourceDiscovered = this.resources.furs;
 		this.upgrades.skinning.productionUnlocked = this.buildings.hunter.production.furs;
 		this.upgrades.skinning.upgrade1Unlocked = this.upgrades.furClothes;
 		
-		this.upgrades.furClothes.priceType1 = this.resources.furs;
+		this.upgrades.furClothes.price.furs.type = this.resources.furs;
 		this.upgrades.furClothes.baseProductionIncreased.hunterMeat = this.buildings.hunter.production.meat;
 		this.upgrades.furClothes.baseProductionIncreased.hunterFurs = this.buildings.hunter.production.furs;
 	},
@@ -149,10 +157,11 @@ var app = new Vue({
 		addBuilding: function (building) {
 			if (building.orcPrice != undefined)
 				this.orcs.current -= building.orcPrice;
-			if (building.price1 != undefined)
-				building.priceType1.current -= building.price1;
-			if (building.price2 != undefined)
-				building.priceType2.current -= building.price2;
+			
+			for (let priceType in building.price) {
+				building.price[priceType].type.current -= building.price[priceType].price;
+			}
+			
 			building.current += 1;
 			
 			if (building.buildingUnlocked != undefined)
@@ -166,10 +175,11 @@ var app = new Vue({
 		buyUpgrade: function (upgrade) {
 			if (upgrade.orcPrice != undefined)
 				orcs.current -= upgrade.orcPrice;
-			if (upgrade.price1 != undefined)
-				upgrade.priceType1.current -= upgrade.price1;
-			if (upgrade.price2 != undefined)
-				upgrade.priceType2.current -= upgrade.price2;
+			if (upgrade.price != undefined) {
+				for (let priceType in upgrade.price) {
+					upgrade.price[priceType].type.current -= upgrade.price[priceType].price;
+				}
+			}
 			upgrade.purchased = true;
 			
 			if (upgrade.resourceDiscovered != undefined)
@@ -195,13 +205,9 @@ var app = new Vue({
 		},
 		
 		updateCost: function (building) {
-			if (building.price1 != undefined) {
-				building.price1 = building.price1Base * Math.pow(building.price1Growth, building.current);
-				building.price1 = parseFloat(building.price1.toFixed(2));
-			}
-			if (building.price2 != undefined) {
-				building.price2 = building.price2Base * Math.pow(building.price2Growth, building.current);
-				building.price2 = parseFloat(building.price2.toFixed(2));
+			for (let priceType in building.price) {
+				building.price[priceType].price = building.price[priceType].base * Math.pow(building.price[priceType].growth, building.current);
+				building.price[priceType].price = parseFloat(building.price[priceType].price.toFixed(2));
 			}
 		},
 		
@@ -269,14 +275,14 @@ var app = new Vue({
 		},
 		
 		isPurchaseDisabled: function (obj) {
-			if ((obj.orcPrice == undefined || this.floatGTE(this.orcs.current, obj.orcPrice)) &&
-				(obj.priceType1 == undefined || this.floatGTE(obj.priceType1.current, obj.price1)) &&
-				(obj.priceType2 == undefined || this.floatGTE(obj.priceType2.current, obj.price2)))
-			{
-				return false;
-			} else {
+			if (!(obj.orcPrice == undefined || this.floatGTE(this.orcs.current, obj.orcPrice)))
 				return true;
+			
+			for (let priceType in obj.price) {
+				if (!this.floatGTE(obj.price[priceType].type.current, obj.price[priceType].price))
+					return true;
 			}
+			return false;
 		},
 		
 		//Clean up floating point nonsense

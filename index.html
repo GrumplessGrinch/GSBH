@@ -23,10 +23,10 @@
 				<p class="right buttonText">{{building.current}}</p>
 				<div style="clear: both;"></div> <!--Clear left/right float properties-->
 				
-				<span class="tooltipText">{{building.flavor}}<br /><br />
-					<span v-if="building.orcPrice != undefined">Orcs: {{building.orcPrice}} <br /></span>
-					<span v-if="building.price1 != undefined">{{building.priceType1.name}}: {{building.price1}} <br /></span>
-					<span v-if="building.price2 != undefined">{{building.priceType2.name}}: {{building.price2}}</span>
+				<span class="tooltipText">
+					{{building.flavor}}<br /><br />
+					<span v-if="building.orcPrice != undefined">Orcs: {{building.orcPrice}}</span>
+					<span v-for="priceType in building.price"><br />{{priceType.type.name}}: {{priceType.price}}</span>
 				</span>
 			</button>
 		</div>
@@ -37,10 +37,10 @@
 			<button v-for="upgrade in upgrades" v-if="!upgrade.purchased && upgrade.unlocked" v-on:click="buyUpgrade(upgrade)"
 			:id="upgrade.id" :key="upgrade.id" :disabled="isPurchaseDisabled(upgrade)" type="button" class="tooltip">
 				<p class="buttonText">{{upgrade.name}}</p>
-				<span class="tooltipText">{{upgrade.flavor}}<br /><br />
+				<span class="tooltipText">
+					{{upgrade.flavor}}<br /><br />
 					<span v-if="upgrade.orcPrice != undefined">Orcs: {{upgrade.orcPrice}}<br /></span>
-					<span v-if="upgrade.price1 != undefined">{{upgrade.priceType1.name}}: {{upgrade.price1}}<br /></span>
-					<span v-if="upgrade.price2 != undefined">{{upgrade.priceType2.name}}: {{upgrade.price2}}</span>
+					<span v-for="priceType in upgrade.price"><br />{{priceType.type.name}}: {{priceType.price}}</span>
 				</span>
 			</button>
 		</div>
