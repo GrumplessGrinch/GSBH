@@ -109,7 +109,10 @@ button:disabled {
 	top: 75%;
 	width: 22%;
 	height: 22%;
+	padding-top: 4px;
 	padding-left: 10px;
+	padding-right: 10px;
+	line-height: 1.2;
 }
 
 #orcs {

@@ -99,8 +99,8 @@ var app = new Vue({
 		this.upgrades.skinning.upgrade1Unlocked = this.upgrades.furClothes;
 		
 		this.upgrades.furClothes.price.furs.type = this.resources.furs;
-		this.upgrades.furClothes.baseProductionIncreased.hunterMeat = this.buildings.hunter.production.meat;
-		this.upgrades.furClothes.baseProductionIncreased.hunterFurs = this.buildings.hunter.production.furs;
+		this.upgrades.furClothes.baseProductionIncreased.hunterMeat.target = this.buildings.hunter.production.meat;
+		this.upgrades.furClothes.baseProductionIncreased.hunterFurs.target = this.buildings.hunter.production.furs;
 	},
 	
 	computed: {
@@ -289,6 +289,7 @@ var app = new Vue({
 		cleanUpResources: function () {
 			for (let resource in this.resources) {
 				this.resources[resource].current = parseFloat(this.resources[resource].current.toFixed(this.SIG_DIGITS));
+				this.resources[resource].productionRate = parseFloat(this.resources[resource].productionRate.toFixed(this.SIG_DIGITS));
 			}
 		},
 		

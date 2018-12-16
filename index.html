@@ -51,13 +51,19 @@
 	</div>
 	
 	<div id="resources" class="container">
-		<p v-for="resource in resources" :key="resource.id">
+		<span v-for="resource in resources" :key="resource.id">
 			<span v-if="resource.discovered == true">
-				{{resource.name}}: 
-				{{resource.current}}
-				<span v-if="resource.max != undefined">/{{resource.max}}</span>
+				<span class="left">
+					{{resource.name}}: 
+					{{resource.current}}
+					<span v-if="resource.max != undefined">/{{resource.max}}</span>
+				</span>
+				<span class="right">
+					{{resource.productionRate}}/sec
+				</span>
+				<div style="clear: both;"></div> <!--Clear left/right float properties-->
 			</span>
-		</p>
+		</span>
 	</div>
 	
 	<div id="orcs" class="container">
