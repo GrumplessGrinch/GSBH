@@ -63,7 +63,7 @@ var app = new Vue({
 			skinning: {
 				id: "upgrade1", name: "Skinning",
 				flavor: "With wooden tools and some experimentation, your hunters will also gather furs from their kills.",
-				unlocked: true, purchased: false,
+				unlocked: true, purchased: false, type: "upgrade",
 				price: {
 					wood: {price: 50, type: null}
 				},
@@ -74,7 +74,7 @@ var app = new Vue({
 			furClothes: {
 				id: "upgrade2", name: "Fur Clothes",
 				flavor: "Warmer hunters are more effective.",
-				unlocked: false, purchased: false,
+				unlocked: false, purchased: false, type: "upgrade",
 				price: {
 					furs: {price: 25, type: null}
 				},
@@ -83,10 +83,12 @@ var app = new Vue({
 					hunterFurs: {amount: 0.05, target: null}
 				}
 			},
-			scouts1: {
-				id: "upgrade3", name: "Scouting Party",
+			stoneScout: {
+				id: "upgrade3", name: "Explore Nearby",
 				flavor: "Send a few orcs to look around. May discover new resources.",
-				unlocked: true, purchased: false,
+				unlocked: true, purchased: false, type: "expedition", expeditionTime: 10, //Seconds
+				expeditionFlavor: "Your orcs have returned. They discovered a strange hole which leads to a network of tunnels under the swamp. " +
+					"They didn't go very far inside, but they report the presence of stone, which may be useful.",
 				orcPrice: 5,
 				resourceDiscovered: null, //Stone
 				buildingUnlocked: null, //Stonecutters
@@ -121,8 +123,8 @@ var app = new Vue({
 		this.upgrades.furClothes.baseProductionIncreased.hunterMeat.target = this.buildings.hunter.production.meat;
 		this.upgrades.furClothes.baseProductionIncreased.hunterFurs.target = this.buildings.hunter.production.furs;
 		
-		this.upgrades.scouts1.resourceDiscovered = this.resources.stone;
-		this.upgrades.scouts1.buildingUnlocked = this.buildings.stonecutter;
+		this.upgrades.stoneScout.resourceDiscovered = this.resources.stone;
+		this.upgrades.stoneScout.buildingUnlocked = this.buildings.stonecutter;
 	},
 	
 	computed: {
@@ -152,7 +154,7 @@ var app = new Vue({
 		},
 		
 		logEvent: function (text) {
-			this.eventLog.push(text);
+			this.eventLog.push("- " + text);
 		},
 		
 		selectTab: function (tab) {
@@ -196,26 +198,47 @@ var app = new Vue({
 		
 		buyUpgrade: function (upgrade) {
 			if (upgrade.orcPrice != undefined)
-				orcs.current -= upgrade.orcPrice;
+				this.orcs.current -= upgrade.orcPrice;
 			if (upgrade.price != undefined) {
 				for (let priceType in upgrade.price) {
 					upgrade.price[priceType].type.current -= upgrade.price[priceType].price;
 				}
 			}
 			upgrade.purchased = true;
+				
+			if (upgrade.type == "upgrade") {
+				if (upgrade.resourceDiscovered != undefined)
+					upgrade.resourceDiscovered.discovered = true;
+				if (upgrade.productionUnlocked != undefined)
+					upgrade.productionUnlocked.unlocked = true;
+				if (upgrade.buildingUnlocked != undefined)
+					upgrade.buildingUnlocked.unlocked = true;
+				if (upgrade.upgrade1Unlocked != undefined)
+					upgrade.upgrade1Unlocked.unlocked = true;
+				
+				if (upgrade.baseProductionIncreased != undefined) {
+					for (let production in upgrade.baseProductionIncreased) {
+						upgrade.baseProductionIncreased[production].target.base += upgrade.baseProductionIncreased[production].amount;
+					}
+				}
+			}
 			
-			if (upgrade.resourceDiscovered != undefined)
-				upgrade.resourceDiscovered.discovered = true;
-			if (upgrade.productionUnlocked != undefined)
-				upgrade.productionUnlocked.unlocked = true;
-			if (upgrade.buildingUnlocked != undefined)
-				upgrade.buildingUnlocked.unlocked = true;
-			if (upgrade.upgrade1Unlocked != undefined)
-				upgrade.upgrade1Unlocked.unlocked = true;
+			if (upgrade.type == "expedition") {
+				this.logEvent("Your orcs will return soon.");
+				var expeditionTimer = setTimeout(expeditionComplete, (upgrade.expeditionTime * 1000));
 			
-			if (upgrade.baseProductionIncreased != undefined) {
-				for (let production in upgrade.baseProductionIncreased) {
-					upgrade.baseProductionIncreased[production].target.base += upgrade.baseProductionIncreased[production].amount;
+				function expeditionComplete() {
+					if (upgrade.resourceDiscovered != undefined)
+						upgrade.resourceDiscovered.discovered = true;
+					if (upgrade.productionUnlocked != undefined)
+						upgrade.productionUnlocked.unlocked = true;
+					if (upgrade.buildingUnlocked != undefined)
+						upgrade.buildingUnlocked.unlocked = true;
+					if (upgrade.upgrade1Unlocked != undefined)
+						upgrade.upgrade1Unlocked.unlocked = true;
+					
+					app.orcs.current += upgrade.orcPrice;
+					app.logEvent(upgrade.expeditionFlavor);
 				}
 			}
 			
@@ -279,7 +302,7 @@ var app = new Vue({
 			this.updateOrcCost();
 			var width = 0;
 			var barElement = $("#orcBar");
-			var barTimer = setInterval(moveOrcProgressBar, (this.orcs.productionTime / 1000) * 1000);
+			var barTimer = setInterval(moveOrcProgressBar, this.orcs.productionTime);
 			
 			function moveOrcProgressBar() {
 				if (width >= 1000) {

@@ -166,5 +166,9 @@ button:disabled {
 	margin: auto;
 	overflow-y: auto;
 	text-align: left;
-	line-height: 0;
+	line-height: 1;
+}
+
+.eventLogEntry {
+	margin: 2px;
 }
