@@ -7,14 +7,14 @@ var app = new Vue({
 		eventLog: [],
 		
 		orcs: {
-			id: "orcs", name: 'Orcs', current: 0, total: 0, price: 5, priceBase: 5, priceGrowth: 1.15,
+			id: "orcs", name: 'Orcs', current: 0, total: 0, price: 5, priceBase: 5, priceGrowth: 1.25,
 			producing: false, productionTime: 10 //Seconds
 		},
 		resources: {
 			meat: {id: "resource1", name: "Meat", current: 5, productionRate: 0, discovered: true},
-			wood: {id: "resource2", name: "Wood", current: 20, max: 100, productionRate: 0, discovered: true},
-			stone: {id: "resource3", name: "Stone", current: 0, max: 100, productionRate: 0, discovered: false},
-			furs: {id: "resource4", name: "Furs", current: 0, max: 100, productionRate: 0, discovered: false}
+			wood: {id: "resource2", name: "Wood", current: 20, max: 100, baseMax: 100, productionRate: 0, discovered: true},
+			stone: {id: "resource3", name: "Stone", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false},
+			furs: {id: "resource4", name: "Furs", current: 0, max: 50, baseMax: 50, productionRate: 0, discovered: false}
 		},
 		buildings: {
 			hunter: {
@@ -39,7 +39,7 @@ var app = new Vue({
 				current: 0,
 				orcPrice: 1, 
 				price: {
-					wood: {price: 10, base: 10, growth: 1.1, type: null}
+					wood: {price: 10, base: 10, growth: 1.15, type: null}
 				},
 				production: {
 					wood: {base: 1, increased: 1, more: 1, type: null, unlocked: true}
@@ -51,11 +51,27 @@ var app = new Vue({
 				unlocked: false,
 				current: 0,
 				orcPrice: 1, 
+				buildingUnlocked: null, //Shed
 				price: {
-					wood: {price: 10, base: 10, growth: 1.1, type: null}
+					wood: {price: 10, base: 10, growth: 1.2, type: null}
 				},
 				production: {
 					stone: {base: 1, increased: 1, more: 1, type: null, unlocked: true}
+				}
+			},
+			shed: {
+				id: "building4", name: "Storage Shed",
+				flavor: "Keep your stuff safe and dry.",
+				unlocked: false,
+				current: 0,
+				price: {
+					wood: {price: 25, base: 25, growth: 1.25, type: null},
+					stone: {price: 25, base: 25, growth: 1.25, type: null}
+				},
+				storage: {
+					wood: {base: 100, increased: 1, more: 1, type: null},
+					stone: {base: 100, increased: 1, more: 1, type: null},
+					furs: {base: 50, increased: 1, more: 1, type: null},
 				}
 			}
 		},
@@ -113,6 +129,13 @@ var app = new Vue({
 		
 		this.buildings.stonecutter.price.wood.type = this.resources.wood;
 		this.buildings.stonecutter.production.stone.type = this.resources.stone;
+		this.buildings.stonecutter.buildingUnlocked = this.buildings.shed;
+		
+		this.buildings.shed.price.wood.type = this.resources.wood;
+		this.buildings.shed.price.stone.type = this.resources.stone;
+		this.buildings.shed.storage.wood.type = this.resources.wood;
+		this.buildings.shed.storage.stone.type = this.resources.stone;
+		this.buildings.shed.storage.furs.type = this.resources.furs;
 		
 		this.upgrades.skinning.price.wood.type = this.resources.wood;
 		this.upgrades.skinning.resourceDiscovered = this.resources.furs;
@@ -193,6 +216,7 @@ var app = new Vue({
 			
 			this.updateCost(building);
 			this.updateProduction();
+			this.updateStorage();
 			this.cleanUpResources();
 		},
 		
@@ -248,6 +272,7 @@ var app = new Vue({
 			element.addClass("purchasedUpgrade");
 			
 			this.updateProduction();
+			this.updateStorage();
 			this.cleanUpResources();
 		},
 		
@@ -279,6 +304,26 @@ var app = new Vue({
 				fursProd += this.buildings.hunter.production.furs.base * this.buildings.hunter.current * 
 					this.buildings.hunter.production.furs.increased * this.buildings.hunter.production.furs.more;
 			this.resources.furs.productionRate = fursProd;
+		},
+		
+		updateStorage: function () {
+			var woodStorage = 0;
+			woodStorage += this.resources.wood.baseMax + 
+				(this.buildings.shed.storage.wood.base * this.buildings.shed.current *
+				this.buildings.shed.storage.wood.increased * this.buildings.shed.storage.wood.more);
+			this.resources.wood.max = woodStorage;
+			
+			var stoneStorage = 0;
+			stoneStorage += this.resources.stone.baseMax + 
+				(this.buildings.shed.storage.stone.base * this.buildings.shed.current *
+				this.buildings.shed.storage.stone.increased * this.buildings.shed.storage.stone.more);
+			this.resources.stone.max = stoneStorage;
+			
+			var fursStorage = 0;
+			fursStorage += this.resources.furs.baseMax + 
+				(this.buildings.shed.storage.furs.base * this.buildings.shed.current *
+				this.buildings.shed.storage.furs.increased * this.buildings.shed.storage.furs.more);
+			this.resources.furs.max = fursStorage;
 		},
 		
 		produceResources: function () {
