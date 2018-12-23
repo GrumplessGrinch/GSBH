@@ -14,14 +14,15 @@ var app = new Vue({
 			meat: {id: "resource1", name: "Meat", current: 5, productionRate: 0, discovered: true},
 			wood: {id: "resource2", name: "Wood", current: 20, max: 100, baseMax: 100, productionRate: 0, discovered: true},
 			stone: {id: "resource3", name: "Stone", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false},
-			clay: {id: "resource4", name: "Clay", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false},
-			furs: {id: "resource5", name: "Furs", current: 0, max: 50, baseMax: 50, productionRate: 0, discovered: false}
+			clay: {id: "resource4", name: "Clay", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false, consumers: []},
+			bricks: {id: "resource5", name: "Bricks", current: 0, max: 500, baseMax: 500, productionRate: 0, discovered: false},
+			furs: {id: "resource6", name: "Furs", current: 0, max: 50, baseMax: 50, productionRate: 0, discovered: false}
 		},
 		buildings: {
 			hunter: {
 				id: "building1", name: "Hunter's Lean-To", 
 				flavor: "Shelter for orcish hunters.",
-				unlocked: true,
+				unlocked: true, active: true,
 				current: 0,
 				orcPrice: 1,
 				buildingUnlocked: null, //Woodcutter
@@ -36,7 +37,7 @@ var app = new Vue({
 			woodcutter: {
 				id: "building2", name: "Scavenger's Lean-To",
 				flavor: "The orcs inside will scavenge pieces of wood.",
-				unlocked: false,
+				unlocked: false, active: true,
 				current: 0,
 				orcPrice: 1, 
 				price: {
@@ -49,7 +50,7 @@ var app = new Vue({
 			stonecutter: {
 				id: "building3", name: "Stone Gatherer's Lean-To",
 				flavor: "They find rocks.",
-				unlocked: false,
+				unlocked: false, active: true,
 				current: 0,
 				orcPrice: 1, 
 				buildingUnlocked: null, //Shed
@@ -63,7 +64,7 @@ var app = new Vue({
 			clayPit: {
 				id: "building4", name: "Clay Pit",
 				flavor: "Dig for clay.",
-				unlocked: false,
+				unlocked: false, active: true,
 				current: 0,
 				orcPrice: 1,
 				price: {
@@ -74,10 +75,27 @@ var app = new Vue({
 					clay: {base: 1, increased: 1, more: 1, type: null, unlocked: true}
 				}
 			},
+			brickmaker: {
+				id: "building5", name: "Brickmaker",
+				flavor: "Turns clay into bricks.",
+				unlocked: false, active: true,
+				current: 0,
+				orcPrice: 2,
+				price: {
+					wood: {price: 15, base: 15, growth: 1.2, type: null},
+					stone: {price: 10, base: 10, growth: 1.2, type: null}
+				},
+				production: {
+					bricks: {
+						base: 2, increased: 1, more: 1, type: null, unlocked: true,
+						consumedBase: 1, consumedType: null
+					}
+				}
+			},
 			shed: {
-				id: "building5", name: "Storage Shed",
+				id: "building6", name: "Storage Shed",
 				flavor: "Keep your stuff safe and dry.",
-				unlocked: false,
+				unlocked: false, active: true,
 				current: 0,
 				price: {
 					wood: {price: 25, base: 25, growth: 1.25, type: null},
@@ -110,7 +128,7 @@ var app = new Vue({
 				orcPrice: 10,
 				resourceDiscovered: null, //Clay
 				buildingUnlocked: null, //Claypit
-				upgradesUnlocked: []
+				upgradesUnlocked: [] //Brickmaking
 			},
 			fire: {
 				id: "upgrade0025", name: "Fire",
@@ -119,7 +137,8 @@ var app = new Vue({
 				price: {
 					wood: {price: 25, type: null}
 				},
-				orcPriceReduction: 0.1
+				orcPriceReduction: 0.1,
+				upgradesUnlocked: [] //Brickmaking
 			},
 			stoneWeapons: {
 				id: "upgrade0030", name: "Stone Weapons",
@@ -134,6 +153,17 @@ var app = new Vue({
 					hunterFurs: {amount: 1, target: null}
 				},
 				upgradesUnlocked: [] //Skinning
+			},
+			brickmaking: {
+				id: "upgrade0035", name: "Brickmaking",
+				flavor: "Learn how to bake clay into sturdy building materials.",
+				unlockReq: 2, unlockPoints: 0, purchased: false, type: "upgrade",
+				price: {
+					wood: {price: 150, type: null},
+					clay: {price: 50, type: null}
+				},
+				resourceDiscovered: null, //Bricks
+				buildingUnlocked: null //Brickmaker
 			},
 			skinning: {
 				id: "upgrade0040", name: "Skinning",
@@ -185,6 +215,12 @@ var app = new Vue({
 		this.buildings.clayPit.price.stone.type = this.resources.stone;
 		this.buildings.clayPit.production.clay.type = this.resources.clay;
 		
+		this.buildings.brickmaker.price.wood.type = this.resources.wood;
+		this.buildings.brickmaker.price.stone.type = this.resources.stone;
+		this.buildings.brickmaker.production.bricks.type = this.resources.bricks;
+		this.buildings.brickmaker.production.bricks.consumedType = this.resources.clay;
+		this.resources.clay.consumers.push(this.buildings.brickmaker);
+		
 		this.buildings.shed.price.wood.type = this.resources.wood;
 		this.buildings.shed.price.stone.type = this.resources.stone;
 		this.buildings.shed.storage.wood.type = this.resources.wood;
@@ -198,14 +234,21 @@ var app = new Vue({
 		
 		this.upgrades.clayScout.resourceDiscovered = this.resources.clay;
 		this.upgrades.clayScout.buildingUnlocked = this.buildings.clayPit;
+		this.upgrades.clayScout.upgradesUnlocked.push(this.upgrades.brickmaking);
 		
 		this.upgrades.fire.price.wood.type = this.resources.wood;
+		this.upgrades.fire.upgradesUnlocked.push(this.upgrades.brickmaking);
 		
 		this.upgrades.stoneWeapons.upgradesUnlocked.push(this.upgrades.skinning);
 		this.upgrades.stoneWeapons.price.wood.type = this.resources.wood;
 		this.upgrades.stoneWeapons.price.stone.type = this.resources.stone;
 		this.upgrades.stoneWeapons.productionIncreased.hunterMeat.target = this.buildings.hunter.production.meat;
 		this.upgrades.stoneWeapons.productionIncreased.hunterFurs.target = this.buildings.hunter.production.furs;
+		
+		this.upgrades.brickmaking.price.wood.type = this.resources.wood;
+		this.upgrades.brickmaking.price.clay.type = this.resources.clay;
+		this.upgrades.brickmaking.resourceDiscovered = this.resources.bricks;
+		this.upgrades.brickmaking.buildingUnlocked = this.buildings.brickmaker;
 		
 		this.upgrades.skinning.price.wood.type = this.resources.wood;
 		this.upgrades.skinning.price.stone.type = this.resources.stone;
@@ -390,9 +433,18 @@ var app = new Vue({
 			this.resources.furs.productionRate = fursProd;
 			
 			var clayProd = 0;
+			var bricksProd = 0;
 			clayProd += this.buildings.clayPit.production.clay.base * this.buildings.clayPit.current * 
 				this.buildings.clayPit.production.clay.increased * this.buildings.clayPit.production.clay.more;
+			
+			if (this.buildings.brickmaker.active) {
+				bricksProd += this.buildings.brickmaker.production.bricks.base * this.buildings.brickmaker.current *
+					this.buildings.brickmaker.production.bricks.increased * this.buildings.brickmaker.production.bricks.more;
+				clayProd -= this.buildings.brickmaker.production.bricks.consumedBase * this.buildings.brickmaker.current;
+			}
+				
 			this.resources.clay.productionRate = clayProd;
+			this.resources.bricks.productionRate = bricksProd;
 		},
 		
 		updateStorage: function () {
@@ -424,6 +476,16 @@ var app = new Vue({
 						(this.resources[resource].current < this.resources[resource].max) ?
 						this.resources[resource].current :
 						this.resources[resource].max;
+				}
+				
+				// Turn off consumer buildings if the resource is exhausted
+				if (this.resources[resource].current < 0) {
+					this.resources[resource].current = 0;
+					for (let i = 0; i < this.resources[resource].consumers.length; i++) {
+						this.resources[resource].consumers[i].active = false;
+					}
+					
+					this.updateProduction();
 				}
 			}
 			
