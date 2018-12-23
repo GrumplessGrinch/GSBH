@@ -94,7 +94,7 @@ var app = new Vue({
 			stoneScout: {
 				id: "upgrade0010", name: "Explore Nearby",
 				flavor: "Send a few orcs to look around. May discover new resources.",
-				unlocked: true, purchased: false, type: "expedition", expeditionTime: 10, //Seconds
+				unlockReq: 0, unlockPoints: 0, purchased: false, type: "expedition", expeditionTime: 10, //Seconds
 				expeditionFlavor: "Your orcs have returned. They discovered a strange hole which leads to a network of tunnels under the swamp. " +
 					"They didn't go very far inside, but they report the presence of stone, which may be useful.",
 				orcPrice: 5,
@@ -105,7 +105,7 @@ var app = new Vue({
 			clayScout: {
 				id: "upgrade0020", name: "Send More Scouts",
 				flavor: "Send a few more orcs to look around. May discover new resources.",
-				unlocked: false, purchased: false, type: "expedition", expeditionTime: 10, //Seconds
+				unlockReq: 1, unlockPoints: 0, purchased: false, type: "expedition", expeditionTime: 10, //Seconds
 				expeditionFlavor: "Your orcs have returned. They discovered deposits of rich clay in the swamp nearby.",
 				orcPrice: 10,
 				resourceDiscovered: null, //Clay
@@ -115,7 +115,7 @@ var app = new Vue({
 			fire: {
 				id: "upgrade0025", name: "Fire",
 				flavor: "Fire pleases the Orcmother. Orcs will cost 10% less meat.",
-				unlocked: true, purchased: false, type: "upgrade",
+				unlockReq: 0, unlockPoints: 0, purchased: false, type: "upgrade",
 				price: {
 					wood: {price: 25, type: null}
 				},
@@ -124,7 +124,7 @@ var app = new Vue({
 			stoneWeapons: {
 				id: "upgrade0030", name: "Stone Weapons",
 				flavor: "With stone spears and knives, your hunters will have 100% increased effectiveness.",
-				unlocked: false, purchased: false, type: "upgrade",
+				unlockReq: 1, unlockPoints: 0, purchased: false, type: "upgrade",
 				price: {
 					wood: {price: 25, type: null},
 					stone: {price: 25, type: null}
@@ -138,7 +138,7 @@ var app = new Vue({
 			skinning: {
 				id: "upgrade0040", name: "Skinning",
 				flavor: "With stone tools and some experimentation, your hunters will also gather furs from their kills.",
-				unlocked: false, purchased: false, type: "upgrade",
+				unlockReq: 1, unlockPoints: 0, purchased: false, type: "upgrade",
 				price: {
 					wood: {price: 50, type: null},
 					stone: {price: 50, type: null}
@@ -150,7 +150,7 @@ var app = new Vue({
 			furClothes: {
 				id: "upgrade0050", name: "Fur Clothes",
 				flavor: "Warmer hunters are more effective.",
-				unlocked: false, purchased: false, type: "upgrade",
+				unlockReq: 1, unlockPoints: 0, purchased: false, type: "upgrade",
 				price: {
 					furs: {price: 25, type: null}
 				},
@@ -310,7 +310,7 @@ var app = new Vue({
 				
 				if (upgrade.upgradesUnlocked != undefined) {
 					for (let i = 0; i < upgrade.upgradesUnlocked.length; i++) {
-						upgrade.upgradesUnlocked[i].unlocked = true;
+						upgrade.upgradesUnlocked[i].unlockPoints++;
 					}
 				}
 				
@@ -340,7 +340,7 @@ var app = new Vue({
 						upgrade.buildingUnlocked.unlocked = true;
 					if (upgrade.upgradesUnlocked != undefined) {
 						for (let i = 0; i < upgrade.upgradesUnlocked.length; i++) {
-							upgrade.upgradesUnlocked[i].unlocked = true;
+							upgrade.upgradesUnlocked[i].unlockPoints++;
 						}
 					}
 					

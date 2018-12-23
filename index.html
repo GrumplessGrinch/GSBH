@@ -34,7 +34,7 @@
 	
 	<div id="upgradeTab" class="tab">
 		<div id="upgrades" class="container">
-			<button v-for="upgrade in upgrades" v-if="!upgrade.purchased && upgrade.unlocked" v-on:click="buyUpgrade(upgrade)"
+			<button v-for="upgrade in upgrades" v-if="!upgrade.purchased && (upgrade.unlockReq == upgrade.unlockPoints)" v-on:click="buyUpgrade(upgrade)"
 			:id="upgrade.id" :key="upgrade.id" :disabled="isPurchaseDisabled(upgrade)" type="button" class="tooltip">
 				<p class="buttonText">{{upgrade.name}}</p>
 				<span class="tooltipText">
