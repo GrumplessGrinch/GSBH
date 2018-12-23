@@ -356,6 +356,7 @@ var app = new Vue({
 			
 			this.updateProduction();
 			this.updateStorage();
+			this.updateOrcCost();
 			this.cleanUpResources();
 		},
 		
@@ -454,8 +455,12 @@ var app = new Vue({
 		},
 		
 		updateOrcCost: function () {
-			//Total + 1 because the orc hasn't been added yet.
-			this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total + 1) * this.orcs.priceReduction;
+			// Add 1 to orc total to include the one in production
+			if (orcs.producing)
+				this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total + 1) * this.orcs.priceReduction;
+			else
+				this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total) * this.orcs.priceReduction;
+			
 			this.orcs.price = parseFloat(this.orcs.price.toFixed(this.SIG_DIGITS));
 		},
 		
