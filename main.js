@@ -7,7 +7,7 @@ var app = new Vue({
 		eventLog: [],
 		
 		orcs: {
-			id: "orcs", name: 'Orcs', current: 0, total: 0, price: 5, priceBase: 5, priceGrowth: 1.25,
+			id: "orcs", name: 'Orcs', current: 0, total: 0, price: 5, priceBase: 5, priceGrowth: 1.25, priceReduction: 1,
 			producing: false, productionTime: 10 //Seconds
 		},
 		resources: {
@@ -112,6 +112,15 @@ var app = new Vue({
 				buildingUnlocked: null, //Claypit
 				upgradesUnlocked: []
 			},
+			fire: {
+				id: "upgrade0025", name: "Fire",
+				flavor: "Fire pleases the Orcmother. Orcs will cost 10% less meat.",
+				unlocked: true, purchased: false, type: "upgrade",
+				price: {
+					wood: {price: 25, type: null}
+				},
+				orcPriceReduction: 0.1
+			},
 			stoneWeapons: {
 				id: "upgrade0030", name: "Stone Weapons",
 				flavor: "With stone spears and knives, your hunters will have 100% increased effectiveness.",
@@ -189,6 +198,8 @@ var app = new Vue({
 		
 		this.upgrades.clayScout.resourceDiscovered = this.resources.clay;
 		this.upgrades.clayScout.buildingUnlocked = this.buildings.clayPit;
+		
+		this.upgrades.fire.price.wood.type = this.resources.wood;
 		
 		this.upgrades.stoneWeapons.upgradesUnlocked.push(this.upgrades.skinning);
 		this.upgrades.stoneWeapons.price.wood.type = this.resources.wood;
@@ -294,6 +305,9 @@ var app = new Vue({
 					upgrade.productionUnlocked.unlocked = true;
 				if (upgrade.buildingUnlocked != undefined)
 					upgrade.buildingUnlocked.unlocked = true;
+				if (upgrade.orcPriceReduction != undefined)
+					this.orcs.priceReduction = this.orcs.priceReduction * (1 - upgrade.orcPriceReduction); // Reduce by a percentage
+				
 				if (upgrade.upgradesUnlocked != undefined) {
 					for (let i = 0; i < upgrade.upgradesUnlocked.length; i++) {
 						upgrade.upgradesUnlocked[i].unlocked = true;
@@ -441,7 +455,7 @@ var app = new Vue({
 		
 		updateOrcCost: function () {
 			//Total + 1 because the orc hasn't been added yet.
-			this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total + 1);
+			this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total + 1) * this.orcs.priceReduction;
 			this.orcs.price = parseFloat(this.orcs.price.toFixed(this.SIG_DIGITS));
 		},
 		
