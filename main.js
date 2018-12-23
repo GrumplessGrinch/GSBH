@@ -14,7 +14,8 @@ var app = new Vue({
 			meat: {id: "resource1", name: "Meat", current: 5, productionRate: 0, discovered: true},
 			wood: {id: "resource2", name: "Wood", current: 20, max: 100, baseMax: 100, productionRate: 0, discovered: true},
 			stone: {id: "resource3", name: "Stone", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false},
-			furs: {id: "resource4", name: "Furs", current: 0, max: 50, baseMax: 50, productionRate: 0, discovered: false}
+			clay: {id: "resource4", name: "Clay", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false},
+			furs: {id: "resource5", name: "Furs", current: 0, max: 50, baseMax: 50, productionRate: 0, discovered: false}
 		},
 		buildings: {
 			hunter: {
@@ -59,8 +60,22 @@ var app = new Vue({
 					stone: {base: 1, increased: 1, more: 1, type: null, unlocked: true}
 				}
 			},
+			clayPit: {
+				id: "building4", name: "Clay Pit",
+				flavor: "Dig for clay.",
+				unlocked: false,
+				current: 0,
+				orcPrice: 1,
+				price: {
+					wood: {price: 10, base: 10, growth: 1.2, type: null},
+					stone: {price: 5, base: 5, growth: 1.2, type: null}
+				},
+				production: {
+					clay: {base: 1, increased: 1, more: 1, type: null, unlocked: true}
+				}
+			},
 			shed: {
-				id: "building4", name: "Storage Shed",
+				id: "building5", name: "Storage Shed",
 				flavor: "Keep your stuff safe and dry.",
 				unlocked: false,
 				current: 0,
@@ -77,7 +92,7 @@ var app = new Vue({
 		},
 		upgrades: {
 			stoneScout: {
-				id: "upgrade1", name: "Explore Nearby",
+				id: "upgrade0010", name: "Explore Nearby",
 				flavor: "Send a few orcs to look around. May discover new resources.",
 				unlocked: true, purchased: false, type: "expedition", expeditionTime: 10, //Seconds
 				expeditionFlavor: "Your orcs have returned. They discovered a strange hole which leads to a network of tunnels under the swamp. " +
@@ -85,10 +100,20 @@ var app = new Vue({
 				orcPrice: 5,
 				resourceDiscovered: null, //Stone
 				buildingUnlocked: null, //Stonecutters
-				upgrade1Unlocked: null //Stone Weapons
+				upgradesUnlocked: [] //Stone Weapons, Clay Scout
+			},
+			clayScout: {
+				id: "upgrade0020", name: "Send More Scouts",
+				flavor: "Send a few more orcs to look around. May discover new resources.",
+				unlocked: false, purchased: false, type: "expedition", expeditionTime: 10, //Seconds
+				expeditionFlavor: "Your orcs have returned. They discovered deposits of rich clay in the swamp nearby.",
+				orcPrice: 10,
+				resourceDiscovered: null, //Clay
+				buildingUnlocked: null, //Claypit
+				upgradesUnlocked: []
 			},
 			stoneWeapons: {
-				id: "upgrade2", name: "Stone Weapons",
+				id: "upgrade0030", name: "Stone Weapons",
 				flavor: "With stone spears and knives, your hunters will have 100% increased effectiveness.",
 				unlocked: false, purchased: false, type: "upgrade",
 				price: {
@@ -99,10 +124,10 @@ var app = new Vue({
 					hunterMeat: {amount: 1, target: null},
 					hunterFurs: {amount: 1, target: null}
 				},
-				upgrade1Unlocked: null //Skinning
+				upgradesUnlocked: [] //Skinning
 			},
 			skinning: {
-				id: "upgrade3", name: "Skinning",
+				id: "upgrade0040", name: "Skinning",
 				flavor: "With stone tools and some experimentation, your hunters will also gather furs from their kills.",
 				unlocked: false, purchased: false, type: "upgrade",
 				price: {
@@ -111,10 +136,10 @@ var app = new Vue({
 				},
 				resourceDiscovered: null, //Furs
 				productionUnlocked: null, //Hunter furs
-				upgrade1Unlocked: null //Fur clothes
+				upgradesUnlocked: [] //Fur clothes
 			},
 			furClothes: {
-				id: "upgrade4", name: "Fur Clothes",
+				id: "upgrade0050", name: "Fur Clothes",
 				flavor: "Warmer hunters are more effective.",
 				unlocked: false, purchased: false, type: "upgrade",
 				price: {
@@ -147,6 +172,10 @@ var app = new Vue({
 		this.buildings.stonecutter.production.stone.type = this.resources.stone;
 		this.buildings.stonecutter.buildingUnlocked = this.buildings.shed;
 		
+		this.buildings.clayPit.price.wood.type = this.resources.wood;
+		this.buildings.clayPit.price.stone.type = this.resources.stone;
+		this.buildings.clayPit.production.clay.type = this.resources.clay;
+		
 		this.buildings.shed.price.wood.type = this.resources.wood;
 		this.buildings.shed.price.stone.type = this.resources.stone;
 		this.buildings.shed.storage.wood.type = this.resources.wood;
@@ -155,9 +184,13 @@ var app = new Vue({
 		
 		this.upgrades.stoneScout.resourceDiscovered = this.resources.stone;
 		this.upgrades.stoneScout.buildingUnlocked = this.buildings.stonecutter;
-		this.upgrades.stoneScout.upgrade1Unlocked = this.upgrades.stoneWeapons;
+		this.upgrades.stoneScout.upgradesUnlocked.push(this.upgrades.stoneWeapons);
+		this.upgrades.stoneScout.upgradesUnlocked.push(this.upgrades.clayScout);
 		
-		this.upgrades.stoneWeapons.upgrade1Unlocked = this.upgrades.skinning;
+		this.upgrades.clayScout.resourceDiscovered = this.resources.clay;
+		this.upgrades.clayScout.buildingUnlocked = this.buildings.clayPit;
+		
+		this.upgrades.stoneWeapons.upgradesUnlocked.push(this.upgrades.skinning);
 		this.upgrades.stoneWeapons.price.wood.type = this.resources.wood;
 		this.upgrades.stoneWeapons.price.stone.type = this.resources.stone;
 		this.upgrades.stoneWeapons.productionIncreased.hunterMeat.target = this.buildings.hunter.production.meat;
@@ -167,7 +200,7 @@ var app = new Vue({
 		this.upgrades.skinning.price.stone.type = this.resources.stone;
 		this.upgrades.skinning.resourceDiscovered = this.resources.furs;
 		this.upgrades.skinning.productionUnlocked = this.buildings.hunter.production.furs;
-		this.upgrades.skinning.upgrade1Unlocked = this.upgrades.furClothes;
+		this.upgrades.skinning.upgradesUnlocked.push(this.upgrades.furClothes);
 		
 		this.upgrades.furClothes.price.furs.type = this.resources.furs;
 		this.upgrades.furClothes.baseProductionIncreased.hunterMeat.target = this.buildings.hunter.production.meat;
@@ -261,8 +294,11 @@ var app = new Vue({
 					upgrade.productionUnlocked.unlocked = true;
 				if (upgrade.buildingUnlocked != undefined)
 					upgrade.buildingUnlocked.unlocked = true;
-				if (upgrade.upgrade1Unlocked != undefined)
-					upgrade.upgrade1Unlocked.unlocked = true;
+				if (upgrade.upgradesUnlocked != undefined) {
+					for (let i = 0; i < upgrade.upgradesUnlocked.length; i++) {
+						upgrade.upgradesUnlocked[i].unlocked = true;
+					}
+				}
 				
 				if (upgrade.baseProductionIncreased != undefined) {
 					for (let production in upgrade.baseProductionIncreased) {
@@ -288,8 +324,11 @@ var app = new Vue({
 						upgrade.productionUnlocked.unlocked = true;
 					if (upgrade.buildingUnlocked != undefined)
 						upgrade.buildingUnlocked.unlocked = true;
-					if (upgrade.upgrade1Unlocked != undefined)
-						upgrade.upgrade1Unlocked.unlocked = true;
+					if (upgrade.upgradesUnlocked != undefined) {
+						for (let i = 0; i < upgrade.upgradesUnlocked.length; i++) {
+							upgrade.upgradesUnlocked[i].unlocked = true;
+						}
+					}
 					
 					app.orcs.current += upgrade.orcPrice;
 					app.logEvent(upgrade.expeditionFlavor);
@@ -334,6 +373,11 @@ var app = new Vue({
 				fursProd += this.buildings.hunter.production.furs.base * this.buildings.hunter.current * 
 					this.buildings.hunter.production.furs.increased * this.buildings.hunter.production.furs.more;
 			this.resources.furs.productionRate = fursProd;
+			
+			var clayProd = 0;
+			clayProd += this.buildings.clayPit.production.clay.base * this.buildings.clayPit.current * 
+				this.buildings.clayPit.production.clay.increased * this.buildings.clayPit.production.clay.more;
+			this.resources.clay.productionRate = clayProd;
 		},
 		
 		updateStorage: function () {
