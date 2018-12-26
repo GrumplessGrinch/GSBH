@@ -22,7 +22,7 @@ var app = new Vue({
 			hunter: {
 				id: "building1", name: "Hunter's Lean-To", 
 				flavor: "Shelter for orcish hunters.",
-				unlocked: true, active: true,
+				unlocked: true, active: true, consumer: false,
 				current: 0,
 				orcPrice: 1,
 				buildingUnlocked: null, //Woodcutter
@@ -37,7 +37,7 @@ var app = new Vue({
 			woodcutter: {
 				id: "building2", name: "Scavenger's Lean-To",
 				flavor: "The orcs inside will scavenge pieces of wood.",
-				unlocked: false, active: true,
+				unlocked: false, active: true, consumer: false,
 				current: 0,
 				orcPrice: 1, 
 				price: {
@@ -50,7 +50,7 @@ var app = new Vue({
 			stonecutter: {
 				id: "building3", name: "Stone Gatherer's Lean-To",
 				flavor: "They find rocks.",
-				unlocked: false, active: true,
+				unlocked: false, active: true, consumer: false,
 				current: 0,
 				orcPrice: 1, 
 				buildingUnlocked: null, //Shed
@@ -64,7 +64,7 @@ var app = new Vue({
 			clayPit: {
 				id: "building4", name: "Clay Pit",
 				flavor: "Dig for clay.",
-				unlocked: false, active: true,
+				unlocked: false, active: true, consumer: false,
 				current: 0,
 				orcPrice: 1,
 				price: {
@@ -78,7 +78,7 @@ var app = new Vue({
 			brickmaker: {
 				id: "building5", name: "Brickmaker",
 				flavor: "Turns clay into bricks.",
-				unlocked: false, active: true,
+				unlocked: false, active: true, consumer: true,
 				current: 0,
 				orcPrice: 2,
 				price: {
@@ -95,7 +95,7 @@ var app = new Vue({
 			shed: {
 				id: "building6", name: "Storage Shed",
 				flavor: "Keep your stuff safe and dry.",
-				unlocked: false, active: true,
+				unlocked: false, active: true, consumer: false,
 				current: 0,
 				price: {
 					wood: {price: 25, base: 25, growth: 1.25, type: null},
@@ -482,10 +482,8 @@ var app = new Vue({
 				if (this.resources[resource].current < 0) {
 					this.resources[resource].current = 0;
 					for (let i = 0; i < this.resources[resource].consumers.length; i++) {
-						this.resources[resource].consumers[i].active = false;
+						this.toggleBuilding(this.resources[resource].consumers[i]);
 					}
-					
-					this.updateProduction();
 				}
 			}
 			
@@ -524,6 +522,11 @@ var app = new Vue({
 				this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total) * this.orcs.priceReduction;
 			
 			this.orcs.price = parseFloat(this.orcs.price.toFixed(this.SIG_DIGITS));
+		},
+		
+		toggleBuilding: function (building) {
+			building.active = !building.active;
+			this.updateProduction();
 		},
 		
 		isPurchaseDisabled: function (obj) {

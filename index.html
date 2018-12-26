@@ -17,18 +17,22 @@
 	
 	<div id="buildingTab" class="tab">
 		<div id="buildings" class="container">
-			<button v-for="building in buildings" v-on:click="addBuilding(building)" v-if="building.unlocked"
-			:id="building.id" :disabled="isPurchaseDisabled(building)" type="button" class="tooltip">
-				<p class="left buttonText">{{building.name}}</p>
-				<p class="right buttonText">{{building.current}}</p>
+			<div v-for="building in buildings" v-if="building.unlocked" :id="building.id">
+				<button  v-on:click="addBuilding(building)" :disabled="isPurchaseDisabled(building)" type="button" class="tooltip building left">
+					<p class="left buttonText">{{building.name}}</p>
+					<p class="right buttonText">{{building.current}}</p>
+					
+					<span class="tooltipText">
+						{{building.flavor}}<br /><br />
+						<span v-if="building.orcPrice != undefined">Orcs: {{building.orcPrice}}</span>
+						<span v-for="priceType in building.price"><br />{{priceType.type.name}}: {{priceType.price}}</span>
+					</span>
+				</button>
+				<button v-if="building.consumer && building.current > 0" v-on:click="toggleBuilding(building)" type="button" class="activeToggle right" v-bind:class="{activeToggleOn: building.active}">
+					<p>Zzz</p>
+				</button>
 				<div style="clear: both;"></div> <!--Clear left/right float properties-->
-				
-				<span class="tooltipText">
-					{{building.flavor}}<br /><br />
-					<span v-if="building.orcPrice != undefined">Orcs: {{building.orcPrice}}</span>
-					<span v-for="priceType in building.price"><br />{{priceType.type.name}}: {{priceType.price}}</span>
-				</span>
-			</button>
+			</div>
 		</div>
 	</div>
 	

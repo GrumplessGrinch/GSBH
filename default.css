@@ -54,6 +54,17 @@ button {
 	margin-bottom: 4px;
 }
 
+.building {
+	width: 90%;
+}
+.activeToggle {
+	width: 9%;
+}
+
+.activeToggleOn {
+	color: #808080;
+}
+
 button .buttonText {
 	background-color: inherit;
 }
@@ -145,6 +156,7 @@ button:disabled {
 	top: 70px;
 	width: 40%;
 	padding: 4px 8px;
+    text-align: left;
 }
 
 #upgrades {
