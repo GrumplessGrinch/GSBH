@@ -211,30 +211,41 @@ var app = new Vue({
 	// This runs after the data object is created
 	// Adds data with dependencies
 	created: function () {
-		this.buildings.hunter.price.wood.type = this.resources.wood;
+		for (let building in this.buildings) {
+			if (this.buildings[building].price.wood != undefined)
+				this.buildings[building].price.wood.type = this.resources.wood;
+			if (this.buildings[building].price.stone != undefined)
+				this.buildings[building].price.stone.type = this.resources.stone;
+		}
+		
+		for (let upgrade in this.upgrades) {
+			if (this.upgrades[upgrade].price != undefined) {
+				if (this.upgrades[upgrade].price.wood != undefined)
+					this.upgrades[upgrade].price.wood.type = this.resources.wood;
+				if (this.upgrades[upgrade].price.stone != undefined)
+					this.upgrades[upgrade].price.stone.type = this.resources.stone;
+				if (this.upgrades[upgrade].price.clay != undefined)
+					this.upgrades[upgrade].price.clay.type = this.resources.clay;
+				if (this.upgrades[upgrade].price.furs != undefined)
+					this.upgrades[upgrade].price.furs.type = this.resources.furs;
+			}
+		}
+
 		this.buildings.hunter.production.meat.type = this.resources.meat;
 		this.buildings.hunter.production.furs.type = this.resources.furs;
 		this.buildings.hunter.buildingUnlocked = this.buildings.woodcutter;
 		
-		this.buildings.woodcutter.price.wood.type = this.resources.wood;
 		this.buildings.woodcutter.production.wood.type = this.resources.wood;
 		
-		this.buildings.stonecutter.price.wood.type = this.resources.wood;
 		this.buildings.stonecutter.production.stone.type = this.resources.stone;
 		this.buildings.stonecutter.buildingUnlocked = this.buildings.shed;
 		
-		this.buildings.clayPit.price.wood.type = this.resources.wood;
-		this.buildings.clayPit.price.stone.type = this.resources.stone;
 		this.buildings.clayPit.production.clay.type = this.resources.clay;
 		
-		this.buildings.brickmaker.price.wood.type = this.resources.wood;
-		this.buildings.brickmaker.price.stone.type = this.resources.stone;
 		this.buildings.brickmaker.production.bricks.type = this.resources.bricks;
 		this.buildings.brickmaker.production.bricks.consumedType = this.resources.clay;
 		this.resources.clay.consumers.push(this.buildings.brickmaker);
 		
-		this.buildings.shed.price.wood.type = this.resources.wood;
-		this.buildings.shed.price.stone.type = this.resources.stone;
 		this.buildings.shed.storage.wood.type = this.resources.wood;
 		this.buildings.shed.storage.stone.type = this.resources.stone;
 		this.buildings.shed.storage.furs.type = this.resources.furs;
@@ -249,31 +260,21 @@ var app = new Vue({
 		this.upgrades.clayScout.buildingUnlocked = this.buildings.clayPit;
 		this.upgrades.clayScout.upgradesUnlocked.push(this.upgrades.brickmaking);
 		
-		this.upgrades.fire.price.wood.type = this.resources.wood;
 		this.upgrades.fire.upgradesUnlocked.push(this.upgrades.brickmaking);
 		
 		this.upgrades.stoneWeapons.upgradesUnlocked.push(this.upgrades.skinning);
-		this.upgrades.stoneWeapons.price.wood.type = this.resources.wood;
-		this.upgrades.stoneWeapons.price.stone.type = this.resources.stone;
 		this.upgrades.stoneWeapons.productionIncreased.hunterMeat.target = this.buildings.hunter.production.meat;
 		this.upgrades.stoneWeapons.productionIncreased.hunterFurs.target = this.buildings.hunter.production.furs;
 		
-		this.upgrades.stoneAxes.price.wood.type = this.resources.wood;
-		this.upgrades.stoneAxes.price.stone.type = this.resources.stone;
 		this.upgrades.stoneAxes.productionIncreased.woodcutter.target = this.buildings.woodcutter.production.wood;
 		
-		this.upgrades.brickmaking.price.wood.type = this.resources.wood;
-		this.upgrades.brickmaking.price.clay.type = this.resources.clay;
 		this.upgrades.brickmaking.resourceDiscovered = this.resources.bricks;
 		this.upgrades.brickmaking.buildingUnlocked = this.buildings.brickmaker;
 		
-		this.upgrades.skinning.price.wood.type = this.resources.wood;
-		this.upgrades.skinning.price.stone.type = this.resources.stone;
 		this.upgrades.skinning.resourceDiscovered = this.resources.furs;
 		this.upgrades.skinning.productionUnlocked = this.buildings.hunter.production.furs;
 		this.upgrades.skinning.upgradesUnlocked.push(this.upgrades.furClothes);
 		
-		this.upgrades.furClothes.price.furs.type = this.resources.furs;
 		this.upgrades.furClothes.baseProductionIncreased.hunterMeat.target = this.buildings.hunter.production.meat;
 		this.upgrades.furClothes.baseProductionIncreased.hunterFurs.target = this.buildings.hunter.production.furs;
 	},
