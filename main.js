@@ -118,7 +118,7 @@ var app = new Vue({
 				orcPrice: 5,
 				resourceDiscovered: null, //Stone
 				buildingUnlocked: null, //Stonecutters
-				upgradesUnlocked: [] //Stone Weapons, Clay Scout
+				upgradesUnlocked: [] //Stone Weapons, Clay Scout, Stone Axes
 			},
 			clayScout: {
 				id: "upgrade0020", name: "Send More Scouts",
@@ -153,6 +153,18 @@ var app = new Vue({
 					hunterFurs: {amount: 1, target: null}
 				},
 				upgradesUnlocked: [] //Skinning
+			},
+			stoneAxes: {
+				id: "upgrade0032", name: "Stone Axes",
+				flavor: "Start chopping down trees instead of just gathering fallen branches. 50% increased effectiveness.",
+				unlockReq: 1, unlockPoints: 0, purchased: false, type: "upgrade",
+				price: {
+					wood: {price: 25, type: null},
+					stone: {price: 50, type: null}
+				},
+				productionIncreased: {
+					woodcutter: {amount: 0.5, target: null},
+				}
 			},
 			brickmaking: {
 				id: "upgrade0035", name: "Brickmaking",
@@ -230,6 +242,7 @@ var app = new Vue({
 		this.upgrades.stoneScout.resourceDiscovered = this.resources.stone;
 		this.upgrades.stoneScout.buildingUnlocked = this.buildings.stonecutter;
 		this.upgrades.stoneScout.upgradesUnlocked.push(this.upgrades.stoneWeapons);
+		this.upgrades.stoneScout.upgradesUnlocked.push(this.upgrades.stoneAxes);
 		this.upgrades.stoneScout.upgradesUnlocked.push(this.upgrades.clayScout);
 		
 		this.upgrades.clayScout.resourceDiscovered = this.resources.clay;
@@ -244,6 +257,10 @@ var app = new Vue({
 		this.upgrades.stoneWeapons.price.stone.type = this.resources.stone;
 		this.upgrades.stoneWeapons.productionIncreased.hunterMeat.target = this.buildings.hunter.production.meat;
 		this.upgrades.stoneWeapons.productionIncreased.hunterFurs.target = this.buildings.hunter.production.furs;
+		
+		this.upgrades.stoneAxes.price.wood.type = this.resources.wood;
+		this.upgrades.stoneAxes.price.stone.type = this.resources.stone;
+		this.upgrades.stoneAxes.productionIncreased.woodcutter.target = this.buildings.woodcutter.production.wood;
 		
 		this.upgrades.brickmaking.price.wood.type = this.resources.wood;
 		this.upgrades.brickmaking.price.clay.type = this.resources.clay;
