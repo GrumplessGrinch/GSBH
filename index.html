@@ -19,8 +19,8 @@
 		<div id="buildings" class="container">
 			<div v-for="building in buildings" v-if="building.unlocked" :id="building.id">
 				<button  v-on:click="addBuilding(building)" :disabled="isPurchaseDisabled(building)" type="button" class="tooltip building left">
-					<p class="left buttonText">{{building.name}}</p>
-					<p class="right buttonText">{{building.current}}</p>
+					<span class="left buttonText">{{building.name}}</span>
+					<span class="right buttonText">{{building.current}}</span>
 					
 					<span class="tooltipText">
 						{{building.flavor}}<br /><br />
@@ -29,7 +29,7 @@
 					</span>
 				</button>
 				<button v-if="building.consumer && building.current > 0" v-on:click="toggleBuilding(building)" type="button" class="activeToggle right" v-bind:class="{activeToggleOn: building.active}">
-					<p>Zzz</p>
+					Zzz
 				</button>
 				<div style="clear: both;"></div> <!--Clear left/right float properties-->
 			</div>
@@ -40,7 +40,7 @@
 		<div id="upgrades" class="container">
 			<button v-for="upgrade in upgrades" v-if="!upgrade.purchased && (upgrade.unlockReq == upgrade.unlockPoints)" v-on:click="buyUpgrade(upgrade)"
 			:id="upgrade.id" :key="upgrade.id" :disabled="isPurchaseDisabled(upgrade)" type="button" class="tooltip">
-				<p class="buttonText">{{upgrade.name}}</p>
+				<span class="buttonText">{{upgrade.name}}</span>
 				<span class="tooltipText">
 					{{upgrade.flavor}}<br /><br />
 					<span v-if="upgrade.orcPrice != undefined">Orcs: {{upgrade.orcPrice}}<br /></span>
