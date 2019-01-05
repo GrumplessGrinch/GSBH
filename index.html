@@ -25,7 +25,7 @@
 					<span class="tooltipText">
 						{{building.flavor}}<br /><br />
 						<span v-if="building.orcPrice != undefined">Orcs: {{building.orcPrice}}</span>
-						<span v-for="priceType in building.price"><br />{{priceType.type.name}}: {{priceType.price}}</span>
+						<span v-for="priceType in building.price" v-if="priceType.price != 0"><br />{{priceType.type.name}}: {{priceType.price}}</span>
 					</span>
 				</button>
 				<button v-if="building.consumer && building.current > 0" v-on:click="toggleBuilding(building)" type="button" class="activeToggle right" v-bind:class="{activeToggleOn: building.active}">
