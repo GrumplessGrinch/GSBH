@@ -4,6 +4,7 @@ var app = new Vue({
 		EPSILON: 0.00001,
 		TICKSPEED: 100, // Milliseconds
 		SIG_DIGITS: 2,
+		BUILDING_UPGRADE_PRICE_MOD: 0.75, 
 		eventLog: [],
 		
 		orcs: {
@@ -38,7 +39,8 @@ var app = new Vue({
 				},
 				oldTier: {
 					current: 0,
-					production: {}
+					production: {},
+					price: {}
 				}
 			},
 			woodcutter: {
@@ -198,7 +200,7 @@ var app = new Vue({
 					stone: {price: 75, type: null},
 					bricks: {price: 200, type: null}
 				},
-				buildingUpgradeUnlocked: null,
+				buildingUpgradeUnlocked: null, //Hunter
 				buildingUpgradePrice: {
 					wood: {price: 10, target: null},
 					stone: {price: 5, target: null},
@@ -241,48 +243,13 @@ var app = new Vue({
 	// This runs after the data object is created
 	// Adds data with dependencies
 	created: function () {
-		for (let building in this.buildings) {
-			if (this.buildings[building].price.wood != undefined)
-				this.buildings[building].price.wood.type = this.resources.wood;
-			if (this.buildings[building].price.stone != undefined)
-				this.buildings[building].price.stone.type = this.resources.stone;
-			if (this.buildings[building].price.bricks != undefined)
-				this.buildings[building].price.bricks.type = this.resources.bricks;
-		}
-		
-		for (let upgrade in this.upgrades) {
-			if (this.upgrades[upgrade].price != undefined) {
-				if (this.upgrades[upgrade].price.wood != undefined)
-					this.upgrades[upgrade].price.wood.type = this.resources.wood;
-				if (this.upgrades[upgrade].price.stone != undefined)
-					this.upgrades[upgrade].price.stone.type = this.resources.stone;
-				if (this.upgrades[upgrade].price.clay != undefined)
-					this.upgrades[upgrade].price.clay.type = this.resources.clay;
-				if (this.upgrades[upgrade].price.furs != undefined)
-					this.upgrades[upgrade].price.furs.type = this.resources.furs;
-				if (this.upgrades[upgrade].price.bricks != undefined)
-					this.upgrades[upgrade].price.bricks.type = this.resources.bricks;
-			}
-		}
+		this.setResourcePointers();
 
-		this.buildings.hunter.production.meat.type = this.resources.meat;
-		this.buildings.hunter.production.furs.type = this.resources.furs;
 		this.buildings.hunter.buildingUnlocked = this.buildings.woodcutter;
 		
-		this.buildings.woodcutter.production.wood.type = this.resources.wood;
-		
-		this.buildings.stonecutter.production.stone.type = this.resources.stone;
 		this.buildings.stonecutter.buildingUnlocked = this.buildings.shed;
 		
-		this.buildings.clayPit.production.clay.type = this.resources.clay;
-		
-		this.buildings.brickmaker.production.bricks.type = this.resources.bricks;
-		this.buildings.brickmaker.production.bricks.consumedType = this.resources.clay;
 		this.resources.clay.consumers.push(this.buildings.brickmaker);
-		
-		this.buildings.shed.storage.wood.type = this.resources.wood;
-		this.buildings.shed.storage.stone.type = this.resources.stone;
-		this.buildings.shed.storage.furs.type = this.resources.furs;
 		
 		this.upgrades.stoneScout.resourceDiscovered = this.resources.stone;
 		this.upgrades.stoneScout.buildingUnlocked = this.buildings.stonecutter;
@@ -368,6 +335,75 @@ var app = new Vue({
 			tabElement = $(idString);
 			tabElement.addClass("highlighted");
 		},
+		
+		setResourcePointers: function () {
+			for (let building in this.buildings) {
+				if (this.buildings[building].price.wood != undefined)
+					this.buildings[building].price.wood.type = this.resources.wood;
+				if (this.buildings[building].price.stone != undefined)
+					this.buildings[building].price.stone.type = this.resources.stone;
+				if (this.buildings[building].price.bricks != undefined)
+					this.buildings[building].price.bricks.type = this.resources.bricks;
+				
+				if (this.buildings[building].production != undefined) {
+					if (this.buildings[building].production.meat != undefined)
+						this.buildings[building].production.meat.type = this.resources.meat;
+					if (this.buildings[building].production.wood != undefined)
+						this.buildings[building].production.wood.type = this.resources.wood;
+					if (this.buildings[building].production.stone != undefined)
+						this.buildings[building].production.stone.type = this.resources.stone;
+					if (this.buildings[building].production.clay != undefined)
+						this.buildings[building].production.clay.type = this.resources.clay;
+					if (this.buildings[building].production.furs != undefined)
+						this.buildings[building].production.furs.type = this.resources.furs;
+					if (this.buildings[building].production.bricks != undefined)
+						this.buildings[building].production.bricks.type = this.resources.bricks;
+				}
+				
+				if (this.buildings[building].tier > 1) {
+					if (this.buildings[building].oldTier.price.wood != undefined)
+						this.buildings[building].oldTier.price.wood.type = this.resources.wood;
+					if (this.buildings[building].oldTier.price.stone != undefined)
+						this.buildings[building].oldTier.price.stone.type = this.resources.stone;
+					if (this.buildings[building].oldTier.price.bricks != undefined)
+						this.buildings[building].oldTier.price.bricks.type = this.resources.bricks;
+					
+					if (this.buildings[building].oldTier.production.meat != undefined)
+						this.buildings[building].oldTier.production.meat.type = this.resources.meat;
+					if (this.buildings[building].oldTier.production.wood != undefined)
+						this.buildings[building].oldTier.production.wood.type = this.resources.wood;
+					if (this.buildings[building].oldTier.production.stone != undefined)
+						this.buildings[building].oldTier.production.stone.type = this.resources.stone;
+					if (this.buildings[building].oldTier.production.clay != undefined)
+						this.buildings[building].oldTier.production.clay.type = this.resources.clay;
+					if (this.buildings[building].oldTier.production.furs != undefined)
+						this.buildings[building].oldTier.production.furs.type = this.resources.furs;
+					if (this.buildings[building].oldTier.production.bricks != undefined)
+						this.buildings[building].oldTier.production.bricks.type = this.resources.bricks;
+				}
+			}
+			
+			for (let upgrade in this.upgrades) {
+				if (this.upgrades[upgrade].price != undefined) {
+					if (this.upgrades[upgrade].price.wood != undefined)
+						this.upgrades[upgrade].price.wood.type = this.resources.wood;
+					if (this.upgrades[upgrade].price.stone != undefined)
+						this.upgrades[upgrade].price.stone.type = this.resources.stone;
+					if (this.upgrades[upgrade].price.clay != undefined)
+						this.upgrades[upgrade].price.clay.type = this.resources.clay;
+					if (this.upgrades[upgrade].price.furs != undefined)
+						this.upgrades[upgrade].price.furs.type = this.resources.furs;
+					if (this.upgrades[upgrade].price.bricks != undefined)
+						this.upgrades[upgrade].price.bricks.type = this.resources.bricks;
+				}
+			}
+		
+			this.buildings.brickmaker.production.bricks.consumedType = this.resources.clay;
+			
+			this.buildings.shed.storage.wood.type = this.resources.wood;
+			this.buildings.shed.storage.stone.type = this.resources.stone;
+			this.buildings.shed.storage.furs.type = this.resources.furs;
+		},
 	
 		addBuilding: function (building) {
 			if (building.orcPrice != undefined)
@@ -389,7 +425,17 @@ var app = new Vue({
 		},
 		
 		upgradeBuilding: function (building) {
+			for (let priceType in building.oldTier.price) {
+				building.oldTier.price[priceType].type.current -= building.oldTier.price[priceType].price;
+			}
 			
+			building.current += 1;
+			building.oldTier.current -= 1;
+			
+			this.updateCost(building);
+			this.updateProduction();
+			this.updateStorage();
+			this.cleanUpResources();
 		},
 		
 		buyUpgrade: function (upgrade) {
@@ -417,16 +463,20 @@ var app = new Vue({
 					upgrade.buildingUpgradeUnlocked.oldTier.current = upgrade.buildingUpgradeUnlocked.current;
 					upgrade.buildingUpgradeUnlocked.current = 0;
 					
-					// "Deep" object copy
-					upgrade.buildingUpgradeUnlocked.oldTier.production = $.extend(true, {}, upgrade.buildingUpgradeUnlocked.production);
-					
-					for (let prod in upgrade.tierProductionMore.target.production) {
-						upgrade.tierProductionMore.target.production[prod].more *= upgrade.tierProductionMore.amount;
-					}
-					
 					for (let resource in upgrade.buildingUpgradePrice) {
 						upgrade.buildingUpgradePrice[resource].target.price = upgrade.buildingUpgradePrice[resource].price;
 						upgrade.buildingUpgradePrice[resource].target.base = upgrade.buildingUpgradePrice[resource].price;
+					}
+					
+					// "Deep" object copy
+					upgrade.buildingUpgradeUnlocked.oldTier.price = $.extend(true, {}, upgrade.buildingUpgradeUnlocked.price);
+					upgrade.buildingUpgradeUnlocked.oldTier.production = $.extend(true, {}, upgrade.buildingUpgradeUnlocked.production);
+					
+					this.setResourcePointers();
+					this.updateCost(upgrade.buildingUpgradeUnlocked);
+					
+					for (let prod in upgrade.tierProductionMore.target.production) {
+						upgrade.tierProductionMore.target.production[prod].more *= upgrade.tierProductionMore.amount;
 					}
 				}
 				
@@ -496,6 +546,13 @@ var app = new Vue({
 			for (let priceType in building.price) {
 				building.price[priceType].price = building.price[priceType].base * Math.pow(building.price[priceType].growth, building.current);
 				building.price[priceType].price = parseFloat(building.price[priceType].price.toFixed(2));
+			}
+			if (building.tier > 1)
+			{
+				for (let priceType in building.oldTier.price) {
+					building.oldTier.price[priceType].price = building.price[priceType].base * Math.pow(building.price[priceType].growth, building.current) * this.BUILDING_UPGRADE_PRICE_MOD;
+					building.oldTier.price[priceType].price = parseFloat(building.oldTier.price[priceType].price.toFixed(2));
+				}
 			}
 		},
 		
@@ -633,6 +690,14 @@ var app = new Vue({
 			
 			for (let priceType in obj.price) {
 				if (!this.floatGTE(obj.price[priceType].type.current, obj.price[priceType].price))
+					return true;
+			}
+			return false;
+		},
+		
+		isUpgradeDisabled: function (building) {
+			for (let priceType in building.oldTier.price) {
+				if (!this.floatGTE(building.oldTier.price[priceType].type.current, building.oldTier.price[priceType].price))
 					return true;
 			}
 			return false;

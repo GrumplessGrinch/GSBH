@@ -28,7 +28,7 @@
 						<span v-for="priceType in building.price" v-if="priceType.price != 0"><br />{{priceType.type.name}}: {{priceType.price}}</span>
 					</span>
 				</button>
-				<button v-if="building.tier > 1 && building.oldTier.current > 0" v-on:click="upgradeBuilding(building)" type="button" class="narrowFlex">
+				<button v-if="building.tier > 1 && building.oldTier.current > 0" v-on:click="upgradeBuilding(building)" type="button" class="narrowFlex" :disabled="isUpgradeDisabled(building)">
 					^
 				</button>
 				<button v-if="building.consumer && building.current > 0" v-on:click="toggleBuilding(building)" type="button" class="narrowFlex" v-bind:class="{activeToggleOn: building.active}">
