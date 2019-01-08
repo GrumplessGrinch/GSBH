@@ -55,13 +55,6 @@ button {
 	height: 50px;
 }
 
-.building {
-	width: 90%;
-}
-.activeToggle {
-	width: 9%;
-}
-
 .activeToggleOn {
 	color: #808080;
 }
@@ -113,6 +106,20 @@ button:disabled {
 	text-align: center;
 	margin-left: 4px;
 	margin-right: 4px;
+}
+
+.flexContainer {
+	display: flex;
+	flex-direction: row;
+}
+
+.wideFlex {
+	
+}
+
+.narrowFlex {
+	flex-basis: 10%;
+	text-align: center;
 }
 
 #resources {

@@ -45,6 +45,7 @@ var app = new Vue({
 				id: "building0020", name: "Scavenger's Lean-To",
 				flavor: "The orcs inside will scavenge pieces of wood.",
 				unlocked: false, active: true, consumer: false,
+				tier: 1,
 				current: 0,
 				orcPrice: 1, 
 				price: {
@@ -58,6 +59,7 @@ var app = new Vue({
 				id: "building0030", name: "Stone Gatherer's Lean-To",
 				flavor: "They find rocks.",
 				unlocked: false, active: true, consumer: false,
+				tier: 1,
 				current: 0,
 				orcPrice: 1, 
 				buildingUnlocked: null, //Shed
@@ -72,6 +74,7 @@ var app = new Vue({
 				id: "building0040", name: "Clay Pit",
 				flavor: "Dig for clay.",
 				unlocked: false, active: true, consumer: false,
+				tier: 1,
 				current: 0,
 				orcPrice: 1,
 				price: {
@@ -86,6 +89,7 @@ var app = new Vue({
 				id: "building0050", name: "Brickmaker",
 				flavor: "Turns clay into bricks.",
 				unlocked: false, active: true, consumer: true,
+				tier: 1,
 				current: 0,
 				orcPrice: 2,
 				price: {
@@ -103,6 +107,7 @@ var app = new Vue({
 				id: "building0060", name: "Storage Shed",
 				flavor: "Keep your stuff safe and dry.",
 				unlocked: false, active: true, consumer: false,
+				tier: 1,
 				current: 0,
 				price: {
 					wood: {price: 25, base: 25, growth: 1.25, type: null},
@@ -381,6 +386,10 @@ var app = new Vue({
 			this.updateProduction();
 			this.updateStorage();
 			this.cleanUpResources();
+		},
+		
+		upgradeBuilding: function (building) {
+			
 		},
 		
 		buyUpgrade: function (upgrade) {
