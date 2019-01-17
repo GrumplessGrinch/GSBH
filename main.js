@@ -17,8 +17,8 @@ var app = new Vue({
 			producing: false, productionTime: 10 //Seconds
 		},
 		tabs: {
-			buildings: {id: "tab1", tabID: "buildingTab", name: "Buildings"},
-			upgrades: {id: "tab2", tabID: "upgradeTab", name: "Upgrades"}
+			buildings: {id: "tab1", tabID: "buildingTab", name: "Buildings", active: true},
+			upgrades: {id: "tab2", tabID: "upgradeTab", name: "Upgrades", active: false}
 		}
 	},
 	
@@ -98,24 +98,10 @@ var app = new Vue({
 		},
 		
 		selectTab: function (tab) {
-			var idString;
-			var tabElement;
 			for (let eachTab in this.tabs) {
-				idString = "#" + this.tabs[eachTab].tabID;
-				tabElement = $(idString);
-				tabElement.addClass("inactiveTab");
-				
-				idString = "#" + this.tabs[eachTab].id;
-				tabElement = $(idString);
-				tabElement.removeClass("highlighted");
+				this.tabs[eachTab].active = false;
 			}
-			idString = "#" + tab.tabID;
-			tabElement = $(idString);
-			tabElement.removeClass("inactiveTab");
-			
-			idString = "#" + tab.id;
-			tabElement = $(idString);
-			tabElement.addClass("highlighted");
+			tab.active = true;
 		},
 		
 		setResourcePointers: function () {
@@ -221,6 +207,105 @@ var app = new Vue({
 			this.orcs.price = parseFloat(this.orcs.price.toFixed(this.SIG_DIGITS));
 		},
 		
+		buyUpgrade: function (upgrade) {
+			if (upgrade.orcPrice != undefined)
+				this.orcs.current -= upgrade.orcPrice;
+			if (upgrade.price != undefined) {
+				for (let priceType in upgrade.price) {
+					upgrade.price[priceType].type.current -= upgrade.price[priceType].price;
+				}
+			}
+			upgrade.purchased = true;
+				
+			if (upgrade.type == "upgrade") {
+				if (upgrade.resourceDiscovered != undefined)
+					upgrade.resourceDiscovered.discovered = true;
+				if (upgrade.productionUnlocked != undefined)
+					upgrade.productionUnlocked.unlocked = true;
+				if (upgrade.buildingUnlocked != undefined)
+					upgrade.buildingUnlocked.unlocked = true;
+				if (upgrade.orcPriceReduction != undefined)
+					this.orcs.priceReduction = this.orcs.priceReduction * (1 - upgrade.orcPriceReduction); // Reduce by a percentage
+				
+				if (upgrade.buildingUpgradeUnlocked != undefined) {
+					upgrade.buildingUpgradeUnlocked.tier++
+					upgrade.buildingUpgradeUnlocked.oldTier.current = upgrade.buildingUpgradeUnlocked.current;
+					upgrade.buildingUpgradeUnlocked.current = 0;
+					
+					for (let resource in upgrade.buildingUpgradePrice) {
+						upgrade.buildingUpgradePrice[resource].target.price = upgrade.buildingUpgradePrice[resource].price;
+						upgrade.buildingUpgradePrice[resource].target.base = upgrade.buildingUpgradePrice[resource].price;
+					}
+					
+					// "Deep" object copy
+					upgrade.buildingUpgradeUnlocked.oldTier.price = $.extend(true, {}, upgrade.buildingUpgradeUnlocked.price);
+					upgrade.buildingUpgradeUnlocked.oldTier.production = $.extend(true, {}, upgrade.buildingUpgradeUnlocked.production);
+					
+					this.setResourcePointers();
+					this.updateCost(upgrade.buildingUpgradeUnlocked);
+					
+					for (let prod in upgrade.tierProductionMore.target.production) {
+						upgrade.tierProductionMore.target.production[prod].more *= upgrade.tierProductionMore.amount;
+					}
+				}
+				
+				if (upgrade.upgradesUnlocked != undefined) {
+					for (let i = 0; i < upgrade.upgradesUnlocked.length; i++) {
+						upgrade.upgradesUnlocked[i].unlockPoints++;
+					}
+				}
+				
+				if (upgrade.productionMore != undefined) {
+					for (let prod in upgrade.productionMore.target.production) {
+						upgrade.productionMore.target.production[prod].more *= upgrade.productionMore.amount;
+					}
+					if (upgrade.productionMore.target.oldTier != undefined && upgrade.productionMore.target.oldTier.current > 0) {
+						for (let prod in upgrade.productionMore.target.oldTier.production) {
+							upgrade.productionMore.target.oldTier.production[prod].more *= upgrade.productionMore.amount;
+						}
+					}
+				}
+				
+				if (upgrade.productionIncreased != undefined) {
+					for (let prod in upgrade.productionIncreased.target.production) {
+						upgrade.productionIncreased.target.production[prod].increased += upgrade.productionIncreased.amount;
+					}
+					if (upgrade.productionIncreased.target.oldTier != undefined && upgrade.productionIncreased.target.oldTier.current > 0) {
+						for (let prod in upgrade.productionIncreased.target.oldTier.production) {
+							upgrade.productionIncreased.target.oldTier.production[prod].increased += upgrade.productionIncreased.amount;
+						}
+					}
+				}
+			}
+			
+			if (upgrade.type == "expedition") {
+				this.logEvent("Your orcs will return soon.");
+				var expeditionTimer = setTimeout(expeditionComplete, (upgrade.expeditionTime * 1000));
+			
+				function expeditionComplete() {
+					if (upgrade.resourceDiscovered != undefined)
+						upgrade.resourceDiscovered.discovered = true;
+					if (upgrade.productionUnlocked != undefined)
+						upgrade.productionUnlocked.unlocked = true;
+					if (upgrade.buildingUnlocked != undefined)
+						upgrade.buildingUnlocked.unlocked = true;
+					if (upgrade.upgradesUnlocked != undefined) {
+						for (let i = 0; i < upgrade.upgradesUnlocked.length; i++) {
+							upgrade.upgradesUnlocked[i].unlockPoints++;
+						}
+					}
+					
+					app.orcs.current += upgrade.orcPrice;
+					app.logEvent(upgrade.expeditionFlavor);
+				}
+			}
+			
+			this.updateProduction();
+			this.updateStorage();
+			this.updateOrcCost();
+			this.cleanUpResources();
+		},
+		
 		isPurchaseDisabled: function (obj) {
 			if (obj.oldTier != undefined && obj.oldTier.current > 0)
 				return true;
@@ -238,8 +323,9 @@ var app = new Vue({
 		cheatResources: function () {
 			this.orcs.current +=5;
 			this.orcs.total +=5;
-			this.resources.wood.current += 50;
-			this.resources.meat.current += 50;
+			for (let resource in this.resources) {
+				this.resources[resource].current += 100;
+			}
 		}
 	}
 })
@@ -248,6 +334,11 @@ var timer;
 
 $(document).ready(function() {
 	timer = setInterval(app.tick, app.TICKSPEED);
-	app.selectTab(app.tabs.buildings);
+	
+	// Event handler for cheating
+	$(document).on('keyup', function (event) {
+		if (event.which == 67) { //67 = 'c'
+			app.cheatResources();
+		}
+	});
 });
-

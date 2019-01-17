@@ -10,12 +10,12 @@
 <body>
 <div id="app">
 	<div id="tabSelect">
-		<button type="button" v-on:click="selectTab(tab)" class="tabButton" :id="tab.id" v-for="tab in tabs">
+		<button type="button" v-on:click="selectTab(tab)" class="tabButton" :id="tab.id" v-for="tab in tabs" v-bind:class="{highlighted: tab.active}">
 			{{tab.name}}
 		</button>
 	</div>
 	
-	<div id="buildingTab" class="tab">
+	<div id="buildingTab" class="tab" v-bind:class="{inactiveTab: !tabs.buildings.active}">
 		<div id="buildings" class="container">
 			<div v-for="building in buildings" v-if="building.unlocked" :id="building.id" class="flexContainer">
 				<button  v-on:click="addBuilding(building)" :disabled="isPurchaseDisabled(building)" type="button" class="tooltip building wideFlex">
@@ -38,7 +38,7 @@
 		</div>
 	</div>
 	
-	<div id="upgradeTab" class="tab">
+	<div id="upgradeTab" class="tab" v-bind:class="{inactiveTab: !tabs.upgrades.active}">
 		<div id="upgrades" class="container">
 			<button v-for="upgrade in upgrades" v-if="!upgrade.purchased && (upgrade.unlockReq == upgrade.unlockPoints)" v-on:click="buyUpgrade(upgrade)"
 			:id="upgrade.id" :key="upgrade.id" :disabled="isPurchaseDisabled(upgrade)" type="button" class="tooltip">
