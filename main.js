@@ -12,6 +12,20 @@ var app = new Vue({
 		BUILDING_UPGRADE_PRICE_MOD: 0.75, 
 		eventLog: [],
 		
+		currentObjective: null,
+		objectives: {
+			intro1: {
+				description: "Wait for an orc to spawn.",
+				completionLog: "Another orc has emerged from the Orcmother's pool, ready to serve.",
+				target: null, // orcs
+				targetGoal: 1,
+				nextObjective: null //intro2
+			},
+			allComplete: {
+				description: "You have completed all objectives."
+			}
+		},
+		
 		orcs: {
 			id: "orcs", name: 'Orcs', current: 0, total: 0, price: 5, priceBase: 5, priceGrowth: 1.25, priceReduction: 1,
 			producing: false, productionTime: 10 //Seconds
@@ -65,6 +79,11 @@ var app = new Vue({
 		this.upgrades.skinning.upgradesUnlocked.push(this.upgrades.furClothes);
 		
 		this.upgrades.furClothes.productionMore.target = this.buildings.hunter;
+		
+		this.currentObjective = this.objectives.intro1;
+		
+		this.objectives.intro1.target = this.orcs;
+		this.objectives.intro1.nextObjective = this.objectives.allComplete;
 	},
 	
 	computed: {
@@ -88,6 +107,7 @@ var app = new Vue({
 		
 		tick: function () {
 			this.produceResources();
+			this.checkObjective(); // Maybe call this less often.
 			
 			if (this.floatGTE(this.resources.meat.current, this.orcs.price) && !this.orcs.producing)
 				this.produceOrc();
@@ -205,6 +225,18 @@ var app = new Vue({
 				this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total) * this.orcs.priceReduction;
 			
 			this.orcs.price = parseFloat(this.orcs.price.toFixed(this.SIG_DIGITS));
+		},
+		
+		checkObjective: function () {
+			if (this.currentObjective != this.objectives.allComplete) {
+				if (this.currentObjective.target == this.orcs) {
+					if (this.floatGTE(this.orcs.current, this.currentObjective.targetGoal)) {
+						this.logEvent(this.currentObjective.completionLog);
+						this.currentObjective = this.currentObjective.nextObjective;
+					}
+				}
+				// More cases for objectives that target resources, buildings, and upgrades
+			}
 		},
 		
 		buyUpgrade: function (upgrade) {
