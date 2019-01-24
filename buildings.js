@@ -8,7 +8,6 @@ export var buildingMixin = {
 				tier: 1,
 				current: 0,
 				orcPrice: 1,
-				buildingUnlocked: null, //Woodcutter
 				price: {
 					wood: {price: 10, base: 10, growth: 1.1, type: null},
 					stone: {price: 0, base: 0, growth: 1.1, type: null},
@@ -22,7 +21,8 @@ export var buildingMixin = {
 					current: 0,
 					production: {},
 					price: {}
-				}
+				},
+				buildingUnlocked: null, //Woodcutter
 			},
 			woodcutter: {
 				id: "building0020", name: "Scavenger's Lean-To",
@@ -45,13 +45,13 @@ export var buildingMixin = {
 				tier: 1,
 				current: 0,
 				orcPrice: 1, 
-				buildingUnlocked: null, //Shed
 				price: {
 					wood: {price: 10, base: 10, growth: 1.2, type: null}
 				},
 				production: {
 					stone: {base: 1, increased: 1, more: 1, type: null, unlocked: true}
-				}
+				},
+				buildingUnlocked: null //Shed
 			},
 			clayPit: {
 				id: "building0040", name: "Clay Pit",
@@ -84,10 +84,27 @@ export var buildingMixin = {
 						base: 2, increased: 1, more: 1, type: null, unlocked: true,
 						consumedBase: 1, consumedType: null
 					}
-				}
+				},
+				buildingUnlocked: null, //Shrine
+			},
+			shrine: {
+				id: "building0060", name: "Shrine",
+				flavor: "Show the gods your devotion. New orcs cost 10% less meat. (Stacks multiplicatively.)",
+				unlocked: false, active: true, consumer: false,
+				tier: 1,
+				current: 0,
+				price: {
+					stone: {price: 25, base: 25, growth: 1.2, type: null},
+					bricks: {price: 50, base: 50, growth: 1.2, type: null}
+				},
+				production: {
+					devotion: {base: 0.1, increased: 1, more: 1, type: null, unlocked: true}
+				},
+				orcPriceModifier: 0.9,
+				resourceDiscovered: null //Devotion
 			},
 			shed: {
-				id: "building0060", name: "Storage Shed",
+				id: "building0100", name: "Storage Shed",
 				flavor: "Keep your stuff safe and dry.",
 				unlocked: false, active: true, consumer: false,
 				tier: 1,
@@ -107,7 +124,7 @@ export var buildingMixin = {
 	
 	methods: {
 		addBuilding: function (building) {
-			if (building.orcPrice != undefined)
+			if (building.orcPrice)
 				this.orcs.current -= building.orcPrice;
 			
 			for (let priceType in building.price) {
@@ -116,8 +133,16 @@ export var buildingMixin = {
 			
 			building.current += 1;
 			
-			if (building.buildingUnlocked != undefined)
+			if (building.buildingUnlocked)
 				building.buildingUnlocked.unlocked = true;
+			
+			if (building.resourceDiscovered)
+				building.resourceDiscovered.discovered = true;
+			
+			if (building.orcPriceModifier) {
+				this.orcs.priceModifier *= building.orcPriceModifier;
+				this.updateOrcCost();
+			}
 			
 			this.updateCost(building);
 			this.updateProduction();

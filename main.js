@@ -27,7 +27,7 @@ var app = new Vue({
 		},
 		
 		orcs: {
-			id: "orcs", name: 'Orcs', current: 0, total: 0, price: 5, priceBase: 5, priceGrowth: 1.25, priceReduction: 1,
+			id: "orcs", name: 'Orcs', current: 0, total: 0, price: 5, priceBase: 5, priceGrowth: 1.20, priceModifier: 1,
 			producing: false, productionTime: 10 //Seconds
 		},
 		tabs: {
@@ -44,6 +44,10 @@ var app = new Vue({
 		this.buildings.hunter.buildingUnlocked = this.buildings.woodcutter;
 		
 		this.buildings.stonecutter.buildingUnlocked = this.buildings.shed;
+		
+		this.buildings.brickmaker.buildingUnlocked = this.buildings.shrine;
+		
+		this.buildings.shrine.resourceDiscovered = this.resources.devotion;
 		
 		this.resources.clay.consumers.push(this.buildings.brickmaker);
 		
@@ -126,62 +130,66 @@ var app = new Vue({
 		
 		setResourcePointers: function () {
 			for (let building in this.buildings) {
-				if (this.buildings[building].price.wood != undefined)
+				if (this.buildings[building].price.wood)
 					this.buildings[building].price.wood.type = this.resources.wood;
-				if (this.buildings[building].price.stone != undefined)
+				if (this.buildings[building].price.stone)
 					this.buildings[building].price.stone.type = this.resources.stone;
-				if (this.buildings[building].price.bricks != undefined)
+				if (this.buildings[building].price.bricks)
 					this.buildings[building].price.bricks.type = this.resources.bricks;
 				
-				if (this.buildings[building].production != undefined) {
-					if (this.buildings[building].production.meat != undefined)
+				if (this.buildings[building].production) {
+					if (this.buildings[building].production.meat)
 						this.buildings[building].production.meat.type = this.resources.meat;
-					if (this.buildings[building].production.wood != undefined)
+					if (this.buildings[building].production.wood)
 						this.buildings[building].production.wood.type = this.resources.wood;
-					if (this.buildings[building].production.stone != undefined)
+					if (this.buildings[building].production.stone)
 						this.buildings[building].production.stone.type = this.resources.stone;
-					if (this.buildings[building].production.clay != undefined)
+					if (this.buildings[building].production.clay)
 						this.buildings[building].production.clay.type = this.resources.clay;
-					if (this.buildings[building].production.furs != undefined)
+					if (this.buildings[building].production.furs)
 						this.buildings[building].production.furs.type = this.resources.furs;
-					if (this.buildings[building].production.bricks != undefined)
+					if (this.buildings[building].production.bricks)
 						this.buildings[building].production.bricks.type = this.resources.bricks;
+					if (this.buildings[building].production.devotion)
+						this.buildings[building].production.devotion.type = this.resources.devotion;
 				}
 				
 				if (this.buildings[building].tier > 1) {
-					if (this.buildings[building].oldTier.price.wood != undefined)
+					if (this.buildings[building].oldTier.price.wood)
 						this.buildings[building].oldTier.price.wood.type = this.resources.wood;
-					if (this.buildings[building].oldTier.price.stone != undefined)
+					if (this.buildings[building].oldTier.price.stone)
 						this.buildings[building].oldTier.price.stone.type = this.resources.stone;
-					if (this.buildings[building].oldTier.price.bricks != undefined)
+					if (this.buildings[building].oldTier.price.bricks)
 						this.buildings[building].oldTier.price.bricks.type = this.resources.bricks;
 					
-					if (this.buildings[building].oldTier.production.meat != undefined)
+					if (this.buildings[building].oldTier.production.meat)
 						this.buildings[building].oldTier.production.meat.type = this.resources.meat;
-					if (this.buildings[building].oldTier.production.wood != undefined)
+					if (this.buildings[building].oldTier.production.wood)
 						this.buildings[building].oldTier.production.wood.type = this.resources.wood;
-					if (this.buildings[building].oldTier.production.stone != undefined)
+					if (this.buildings[building].oldTier.production.stone)
 						this.buildings[building].oldTier.production.stone.type = this.resources.stone;
-					if (this.buildings[building].oldTier.production.clay != undefined)
+					if (this.buildings[building].oldTier.production.clay)
 						this.buildings[building].oldTier.production.clay.type = this.resources.clay;
-					if (this.buildings[building].oldTier.production.furs != undefined)
+					if (this.buildings[building].oldTier.production.furs)
 						this.buildings[building].oldTier.production.furs.type = this.resources.furs;
-					if (this.buildings[building].oldTier.production.bricks != undefined)
+					if (this.buildings[building].oldTier.production.bricks)
 						this.buildings[building].oldTier.production.bricks.type = this.resources.bricks;
+					if (this.buildings[building].oldTier.production.devotion)
+						this.buildings[building].oldTier.production.devotion.type = this.resources.devotion;
 				}
 			}
 			
 			for (let upgrade in this.upgrades) {
-				if (this.upgrades[upgrade].price != undefined) {
-					if (this.upgrades[upgrade].price.wood != undefined)
+				if (this.upgrades[upgrade].price) {
+					if (this.upgrades[upgrade].price.wood)
 						this.upgrades[upgrade].price.wood.type = this.resources.wood;
-					if (this.upgrades[upgrade].price.stone != undefined)
+					if (this.upgrades[upgrade].price.stone)
 						this.upgrades[upgrade].price.stone.type = this.resources.stone;
-					if (this.upgrades[upgrade].price.clay != undefined)
+					if (this.upgrades[upgrade].price.clay)
 						this.upgrades[upgrade].price.clay.type = this.resources.clay;
-					if (this.upgrades[upgrade].price.furs != undefined)
+					if (this.upgrades[upgrade].price.furs)
 						this.upgrades[upgrade].price.furs.type = this.resources.furs;
-					if (this.upgrades[upgrade].price.bricks != undefined)
+					if (this.upgrades[upgrade].price.bricks)
 						this.upgrades[upgrade].price.bricks.type = this.resources.bricks;
 				}
 			}
@@ -220,9 +228,9 @@ var app = new Vue({
 		updateOrcCost: function () {
 			// Add 1 to orc total to include the one in production
 			if (orcs.producing)
-				this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total + 1) * this.orcs.priceReduction;
+				this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total + 1) * this.orcs.priceModifier;
 			else
-				this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total) * this.orcs.priceReduction;
+				this.orcs.price = this.orcs.priceBase * Math.pow(this.orcs.priceGrowth, this.orcs.total) * this.orcs.priceModifier;
 			
 			this.orcs.price = parseFloat(this.orcs.price.toFixed(this.SIG_DIGITS));
 		},
@@ -240,9 +248,9 @@ var app = new Vue({
 		},
 		
 		buyUpgrade: function (upgrade) {
-			if (upgrade.orcPrice != undefined)
+			if (upgrade.orcPrice)
 				this.orcs.current -= upgrade.orcPrice;
-			if (upgrade.price != undefined) {
+			if (upgrade.price) {
 				for (let priceType in upgrade.price) {
 					upgrade.price[priceType].type.current -= upgrade.price[priceType].price;
 				}
@@ -250,16 +258,18 @@ var app = new Vue({
 			upgrade.purchased = true;
 				
 			if (upgrade.type == "upgrade") {
-				if (upgrade.resourceDiscovered != undefined)
+				if (upgrade.resourceDiscovered)
 					upgrade.resourceDiscovered.discovered = true;
-				if (upgrade.productionUnlocked != undefined)
+				if (upgrade.productionUnlocked)
 					upgrade.productionUnlocked.unlocked = true;
-				if (upgrade.buildingUnlocked != undefined)
+				if (upgrade.buildingUnlocked)
 					upgrade.buildingUnlocked.unlocked = true;
-				if (upgrade.orcPriceReduction != undefined)
-					this.orcs.priceReduction = this.orcs.priceReduction * (1 - upgrade.orcPriceReduction); // Reduce by a percentage
+				if (upgrade.orcPriceModifier) {
+					this.orcs.priceModifier *= (upgrade.orcPriceModifier);
+					this.updateOrcCost();
+				}
 				
-				if (upgrade.buildingUpgradeUnlocked != undefined) {
+				if (upgrade.buildingUpgradeUnlocked) {
 					upgrade.buildingUpgradeUnlocked.tier++
 					upgrade.buildingUpgradeUnlocked.oldTier.current = upgrade.buildingUpgradeUnlocked.current;
 					upgrade.buildingUpgradeUnlocked.current = 0;
@@ -281,13 +291,13 @@ var app = new Vue({
 					}
 				}
 				
-				if (upgrade.upgradesUnlocked != undefined) {
+				if (upgrade.upgradesUnlocked) {
 					for (let i = 0; i < upgrade.upgradesUnlocked.length; i++) {
 						upgrade.upgradesUnlocked[i].unlockPoints++;
 					}
 				}
 				
-				if (upgrade.productionMore != undefined) {
+				if (upgrade.productionMore) {
 					for (let prod in upgrade.productionMore.target.production) {
 						upgrade.productionMore.target.production[prod].more *= upgrade.productionMore.amount;
 					}
@@ -298,7 +308,7 @@ var app = new Vue({
 					}
 				}
 				
-				if (upgrade.productionIncreased != undefined) {
+				if (upgrade.productionIncreased) {
 					for (let prod in upgrade.productionIncreased.target.production) {
 						upgrade.productionIncreased.target.production[prod].increased += upgrade.productionIncreased.amount;
 					}
@@ -315,13 +325,13 @@ var app = new Vue({
 				var expeditionTimer = setTimeout(expeditionComplete, (upgrade.expeditionTime * 1000));
 			
 				function expeditionComplete() {
-					if (upgrade.resourceDiscovered != undefined)
+					if (upgrade.resourceDiscovered)
 						upgrade.resourceDiscovered.discovered = true;
-					if (upgrade.productionUnlocked != undefined)
+					if (upgrade.productionUnlocked)
 						upgrade.productionUnlocked.unlocked = true;
-					if (upgrade.buildingUnlocked != undefined)
+					if (upgrade.buildingUnlocked)
 						upgrade.buildingUnlocked.unlocked = true;
-					if (upgrade.upgradesUnlocked != undefined) {
+					if (upgrade.upgradesUnlocked) {
 						for (let i = 0; i < upgrade.upgradesUnlocked.length; i++) {
 							upgrade.upgradesUnlocked[i].unlockPoints++;
 						}
@@ -339,10 +349,10 @@ var app = new Vue({
 		},
 		
 		isPurchaseDisabled: function (obj) {
-			if (obj.oldTier != undefined && obj.oldTier.current > 0)
+			if (obj.oldTier && obj.oldTier.current > 0)
 				return true;
 			
-			if (!(obj.orcPrice == undefined || this.floatGTE(this.orcs.current, obj.orcPrice)))
+			if (obj.orcPrice && !this.floatGTE(this.orcs.current, obj.orcPrice))
 				return true;
 			
 			for (let priceType in obj.price) {

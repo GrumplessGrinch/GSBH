@@ -1,12 +1,13 @@
 export var resourceMixin = {
 	data: {
 		resources: {
-			meat: {id: "resource1", name: "Meat", current: 5, productionRate: 0, discovered: true},
-			wood: {id: "resource2", name: "Wood", current: 20, max: 100, baseMax: 100, productionRate: 0, discovered: true},
-			stone: {id: "resource3", name: "Stone", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false},
-			clay: {id: "resource4", name: "Clay", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false, consumers: []},
-			bricks: {id: "resource5", name: "Bricks", current: 0, max: 500, baseMax: 500, productionRate: 0, discovered: false},
-			furs: {id: "resource6", name: "Furs", current: 0, max: 50, baseMax: 50, productionRate: 0, discovered: false}
+			meat: {id: "resource010", name: "Meat", current: 5, productionRate: 0, discovered: true},
+			wood: {id: "resource020", name: "Wood", current: 20, max: 100, baseMax: 100, productionRate: 0, discovered: true},
+			stone: {id: "resource030", name: "Stone", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false},
+			clay: {id: "resource040", name: "Clay", current: 0, max: 100, baseMax: 100, productionRate: 0, discovered: false, consumers: []},
+			bricks: {id: "resource050", name: "Bricks", current: 0, max: 500, baseMax: 500, productionRate: 0, discovered: false},
+			furs: {id: "resource060", name: "Furs", current: 0, max: 50, baseMax: 50, productionRate: 0, discovered: false},
+			devotion: {id: "resource070", name: "Devotion", current: 0, productionRate: 0, discovered: false}
 		}
 	},
 	
@@ -15,7 +16,7 @@ export var resourceMixin = {
 			for (let resource in this.resources) {
 				this.resources[resource].current += (this.resources[resource].productionRate * (this.TICKSPEED / 1000));
 			
-				if (this.resources[resource].max != undefined) {
+				if (this.resources[resource].max) {
 					this.resources[resource].current =
 						(this.resources[resource].current < this.resources[resource].max) ?
 						this.resources[resource].current :
@@ -75,6 +76,11 @@ export var resourceMixin = {
 				
 			this.resources.clay.productionRate = clayProd;
 			this.resources.bricks.productionRate = bricksProd;
+			
+			var devotionProd = 0;
+			devotionProd += this.buildings.shrine.production.devotion.base * this.buildings.shrine.current *
+				this.buildings.shrine.production.devotion.increased * this.buildings.shrine.production.devotion.more;
+			this.resources.devotion.productionRate = devotionProd;
 		},
 		
 		updateStorage: function () {

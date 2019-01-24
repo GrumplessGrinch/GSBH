@@ -24,12 +24,12 @@ export var upgradeMixin = {
 			},
 			fire: {
 				id: "upgrade0025", name: "Fire",
-				flavor: "Fire pleases the Orcmother. Orcs will cost 10% less meat.",
+				flavor: "Fire pleases the Orcmother. Orcs will cost 20% less meat.",
 				unlockReq: 0, unlockPoints: 0, purchased: false, type: "upgrade",
 				price: {
 					wood: {price: 25, type: null}
 				},
-				orcPriceReduction: 0.1,
+				orcPriceModifier: 0.8,
 				upgradesUnlocked: [] //Brickmaking
 			},
 			stoneWeapons: {
