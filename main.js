@@ -181,6 +181,8 @@ var app = new Vue({
 			
 			for (let upgrade in this.upgrades) {
 				if (this.upgrades[upgrade].price) {
+					if (this.upgrades[upgrade].price.meat)
+						this.upgrades[upgrade].price.meat.type = this.resources.meat;
 					if (this.upgrades[upgrade].price.wood)
 						this.upgrades[upgrade].price.wood.type = this.resources.wood;
 					if (this.upgrades[upgrade].price.stone)

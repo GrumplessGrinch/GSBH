@@ -3,11 +3,14 @@ export var upgradeMixin = {
 		upgrades: {
 			stoneScout: {
 				id: "upgrade0010", name: "Explore Nearby",
-				flavor: "Send a few orcs to look around. May discover new resources.",
+				flavor: "Send an orc to look around. May discover new resources.",
 				unlockReq: 0, unlockPoints: 0, purchased: false, type: "expedition", expeditionTime: 10, //Seconds
-				expeditionFlavor: "Your orcs have returned. They discovered a strange hole which leads to a network of tunnels under the swamp. " +
-					"They didn't go very far inside, but they report the presence of stone, which may be useful.",
-				orcPrice: 5,
+				expeditionFlavor: "Your orc has returned. It discovered a strange hole which leads to a network of tunnels under the swamp. " +
+					"It didn't go very far inside, but it reports the presence of stone, which may be useful.",
+				orcPrice: 1,
+				price: {
+					meat: {price: 25, type: null}
+				},
 				resourceDiscovered: null, //Stone
 				buildingUnlocked: null, //Stonecutters
 				upgradesUnlocked: [] //Stone Weapons, Clay Scout, Stone Axes
@@ -17,7 +20,10 @@ export var upgradeMixin = {
 				flavor: "Send a few more orcs to look around. May discover new resources.",
 				unlockReq: 1, unlockPoints: 0, purchased: false, type: "expedition", expeditionTime: 10, //Seconds
 				expeditionFlavor: "Your orcs have returned. They discovered deposits of rich clay in the swamp nearby.",
-				orcPrice: 10,
+				orcPrice: 2,
+				price: {
+					meat: {price: 100, type: null}
+				},
 				resourceDiscovered: null, //Clay
 				buildingUnlocked: null, //Claypit
 				upgradesUnlocked: [] //Brickmaking
